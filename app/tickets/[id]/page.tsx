@@ -7,11 +7,12 @@ import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, User, Calendar, AlertCircle, Image as ImageIcon, MessageSquare } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
+import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
 import MobileNav from '@/components/layout/MobileNav'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Card from '@/components/ui/Card'
-import { PRIORITY_CONFIG, formatDate } from '@/lib/utils'
+import { PRIORITY_CONFIG, formatDate, cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/Skeleton'
 
 type Ticket = {
@@ -28,6 +29,7 @@ type Ticket = {
 
 export default function TicketDetailPage() {
   const { id } = useParams()
+  const { isOpen } = useSidebar()
   const router = useRouter()
   const [ticket, setTicket] = useState<Ticket | null>(null)
   const [loading, setLoading] = useState(true)
@@ -67,7 +69,10 @@ export default function TicketDetailPage() {
         </span>
       </header>
 
-      <main className="md:ml-60 pb-24 md:pb-8">
+      <main className={cn(
+        "pb-24 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-0"
+      )}>
         <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-2xl">
           {/* Desktop back */}
           <button

@@ -8,6 +8,7 @@ import { Ticket, Plus, TrendingUp, Clock, CheckCircle2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
+import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
 import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
@@ -15,6 +16,7 @@ import TicketCard from '@/components/TicketCard'
 import Button from '@/components/ui/Button'
 import EmptyState from '@/components/ui/EmptyState'
 import { TicketCardSkeleton } from '@/components/ui/Skeleton'
+import { cn } from '@/lib/utils'
 
 type TicketRow = {
   id: string
@@ -76,14 +78,19 @@ export default function DashboardPage() {
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
 
+  const { isOpen } = useSidebar()
+
   if (authLoading) return null
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 uppercase-first">
       <Sidebar />
       <Topbar title="Dashboard" />
 
-      <main className="md:ml-60 pb-24 md:pb-8">
+      <main className={cn(
+        "pb-24 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-0"
+      )}>
         <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-3xl md:max-w-none">
           {/* Header */}
           <div className="flex items-start justify-between mb-6">

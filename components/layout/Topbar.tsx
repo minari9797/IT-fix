@@ -11,7 +11,7 @@ export default function Topbar({ title }: TopbarProps) {
   const { toggle } = useSidebar()
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center justify-between md:hidden">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <button 
           onClick={toggle}

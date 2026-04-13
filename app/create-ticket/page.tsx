@@ -8,6 +8,7 @@ import { FileText, AlignLeft, AlertCircle, Image as ImageIcon, X, Upload, Chevro
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
+import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
 import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
@@ -22,6 +23,7 @@ const PRIORITIES = [
 
 export default function CreateTicketPage() {
   const { user } = useUser()
+  const { isOpen } = useSidebar()
   const router = useRouter()
 
   const [title, setTitle] = useState('')
@@ -110,7 +112,10 @@ export default function CreateTicketPage() {
       <Sidebar />
       <Topbar title="New Ticket" />
 
-      <main className="md:ml-60 pb-28 md:pb-8">
+      <main className={cn(
+        "pb-24 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-0"
+      )}>
         <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-xl">
           <div className="mb-6 hidden md:block">
             <h2 className="text-xl font-bold text-gray-900">Create Ticket</h2>

@@ -6,12 +6,14 @@ import { useEffect, useState } from 'react'
 import { Users, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
+import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
 import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
 import TechnicianCard from '@/components/TechnicianCard'
 import EmptyState from '@/components/ui/EmptyState'
 import { TechnicianCardSkeleton } from '@/components/ui/Skeleton'
+import { cn } from '@/lib/utils'
 
 type Technician = {
   id: string
@@ -23,6 +25,7 @@ type Technician = {
 }
 
 export default function TechniciansPage() {
+  const { isOpen } = useSidebar()
   const [technicians, setTechnicians] = useState<Technician[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -51,7 +54,10 @@ export default function TechniciansPage() {
       <Sidebar />
       <Topbar title="Technicians" />
 
-      <main className="md:ml-60 pb-24 md:pb-8">
+      <main className={cn(
+        "pb-24 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-0"
+      )}>
         <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-2xl">
           {/* Header */}
           <div className="mb-5 hidden md:block">

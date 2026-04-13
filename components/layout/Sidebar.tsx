@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, PlusCircle, Users, UserCircle, Zap, LogOut, X } from 'lucide-react'
+import { LayoutDashboard, PlusCircle, Users, UserCircle, Zap, LogOut, X, Shield } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useSidebar } from '@/lib/context/SidebarContext'
+import { useUser } from '@/lib/hooks'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -18,6 +19,7 @@ export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { isOpen, close } = useSidebar()
+  const { isAdmin } = useUser()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -35,7 +37,7 @@ export default function Sidebar() {
       )}
 
       <aside className={cn(
-        "fixed left-0 top-0 z-50 h-screen bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 md:translate-x-0 w-64 shadow-xl md:shadow-none",
+        "fixed left-0 top-0 z-50 h-screen bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 w-64 shadow-xl",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Logo & Close Button */}
@@ -75,6 +77,22 @@ export default function Sidebar() {
               </Link>
             )
           })}
+
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => { if (window.innerWidth < 768) close() }}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                pathname === '/admin'
+                  ? 'bg-purple-50 text-purple-700 border border-purple-100'
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+              )}
+            >
+              <Shield className="w-5 h-5 flex-shrink-0" />
+              Admin Console
+            </Link>
+          )}
         </nav>
 
         {/* Sign out */}

@@ -8,14 +8,17 @@ import { User, Mail, LogOut, Ticket, CheckCircle2, Clock, Shield } from 'lucide-
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
+import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
 import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
+import { cn } from '@/lib/utils'
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useUser()
+  const { isOpen } = useSidebar()
   const router = useRouter()
   const [ticketStats, setTicketStats] = useState({ total: 0, resolved: 0, pending: 0 })
   const [signingOut, setSigningOut] = useState(false)
@@ -66,7 +69,10 @@ export default function ProfilePage() {
       <Sidebar />
       <Topbar title="Profile" />
 
-      <main className="md:ml-60 pb-24 md:pb-8">
+      <main className={cn(
+        "pb-24 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-0"
+      )}>
         <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-lg">
 
           {/* Avatar card */}

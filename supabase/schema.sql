@@ -90,28 +90,38 @@ create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id);
 
--- TECHNICIANS policies (everyone can read, only service role can write)
+-- TECHNICIANS policies
 create policy "Anyone authenticated can view technicians"
   on public.technicians for select
   to authenticated
   using (true);
 
+create policy "Admins can manage technicians"
+  on public.technicians for all
+  using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+
 -- TICKETS policies
-create policy "Users can view own tickets"
+create policy "Users can view own tickets or admins can view all"
   on public.tickets for select
-  using (auth.uid() = user_id);
+  using (
+    auth.uid() = user_id or 
+    exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
+  );
 
 create policy "Users can create own tickets"
   on public.tickets for insert
   with check (auth.uid() = user_id);
 
-create policy "Users can update own tickets"
+create policy "Users can update own tickets or admins can update all"
   on public.tickets for update
-  using (auth.uid() = user_id);
+  using (
+    auth.uid() = user_id or 
+    exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
+  );
 
-create policy "Users can delete own tickets"
+create policy "Admins can delete tickets"
   on public.tickets for delete
-  using (auth.uid() = user_id);
+  using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
 
 -- ─────────────────────────────────────────────
 -- 5. STORAGE BUCKET: screenshots
