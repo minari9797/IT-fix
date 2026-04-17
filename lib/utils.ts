@@ -24,23 +24,23 @@ export function timeAgo(dateString: string) {
 export const STATUS_CONFIG = {
   pending: {
     label: 'Pending',
-    color: 'bg-amber-100 text-amber-700 border-amber-200',
-    dot: 'bg-amber-500',
+    color: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    dot: 'bg-amber-400',
   },
   in_progress: {
     label: 'In Progress',
-    color: 'bg-blue-100 text-blue-700 border-blue-200',
-    dot: 'bg-blue-500',
+    color: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    dot: 'bg-blue-400',
   },
   resolved: {
     label: 'Resolved',
-    color: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    dot: 'bg-emerald-500',
+    color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    dot: 'bg-emerald-400',
   },
 } as const
 
 export const PRIORITY_CONFIG = {
-  low: { label: 'Low', color: 'bg-gray-100 text-gray-600' },
-  medium: { label: 'Medium', color: 'bg-orange-100 text-orange-600' },
-  high: { label: 'High', color: 'bg-red-100 text-red-600' },
+  low:    { label: 'Low',    color: 'bg-slate-700 text-slate-300' },
+  medium: { label: 'Medium', color: 'bg-orange-500/10 text-orange-400' },
+  high:   { label: 'High',   color: 'bg-red-500/10 text-red-400' },
 } as const

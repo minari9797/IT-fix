@@ -2,23 +2,26 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, PlusCircle, Users, UserCircle, Zap, LogOut, X, Shield } from 'lucide-react'
+import {
+  LayoutDashboard, PlusCircle, Users, UserCircle,
+  Zap, LogOut, X, Shield, ChevronLeft, ChevronRight,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import { useUser } from '@/lib/hooks'
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/create-ticket', label: 'New Ticket', icon: PlusCircle },
-  { href: '/technicians', label: 'Technicians', icon: Users },
-  { href: '/profile', label: 'Profile', icon: UserCircle },
+  { href: '/dashboard',     label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/create-ticket', label: 'New Ticket',  icon: PlusCircle },
+  { href: '/technicians',   label: 'Technicians', icon: Users },
+  { href: '/profile',       label: 'Profile',     icon: UserCircle },
 ]
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const router = useRouter()
-  const { isOpen, close } = useSidebar()
+  const router   = useRouter()
+  const { isOpen, toggle, close } = useSidebar()
   const { isAdmin } = useUser()
 
   const handleSignOut = async () => {
@@ -26,83 +29,124 @@ export default function Sidebar() {
     router.push('/login')
   }
 
+  const allItems = [
+    ...navItems,
+    ...(isAdmin ? [{ href: '/admin', label: 'Admin Console', icon: Shield }] : []),
+  ]
+
   return (
     <>
-      {/* Backdrop for mobile */}
+      {/* Mobile backdrop */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 md:hidden animate-fade-in"
+        <div
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 md:hidden animate-fade-in"
           onClick={close}
         />
       )}
 
-      <aside className={cn(
-        "fixed left-0 top-0 z-50 h-screen bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 w-64 shadow-xl",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        {/* Logo & Close Button */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+      {/* Sidebar panel */}
+      <aside
+        className={cn(
+          'fixed left-0 top-0 z-50 h-screen bg-slate-900 border-r border-slate-800',
+          'flex flex-col transition-all duration-300',
+          'md:translate-x-0',
+          isOpen ? 'translate-x-0' : '-translate-x-full',
+          isOpen ? 'md:w-64' : 'md:w-16',
+        )}
+      >
+        {/* Logo row */}
+        <div className={cn(
+          'flex items-center border-b border-slate-800 transition-all duration-300',
+          isOpen ? 'justify-between px-5 py-5' : 'justify-center px-2 py-5',
+        )}>
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-blue-600 flex items-center justify-center shadow-md shadow-blue-900/50">
               <Zap className="w-4 h-4 text-white" />
             </div>
-            <span className="text-lg font-bold text-gray-900">IT-Fix</span>
+            <span className={cn(
+              'text-lg font-bold text-slate-100 whitespace-nowrap transition-all duration-200',
+              isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:block',
+            )}>
+              IT-Fix
+            </span>
           </div>
-          <button 
+
+          {/* Mobile close */}
+          <button
             onClick={close}
-            className="md:hidden p-2 rounded-xl text-gray-400 hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Nav links */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map(({ href, label, icon: Icon }) => {
-            const isActive = pathname === href
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-hidden">
+          {allItems.map(({ href, label, icon: Icon }) => {
+            const isActive  = pathname === href
+            const isAdminLk = href === '/admin'
             return (
               <Link
                 key={href}
                 href={href}
+                title={label}
                 onClick={() => { if (window.innerWidth < 768) close() }}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                  !isOpen && 'md:justify-center md:px-2',
                   isActive
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                    ? isAdminLk
+                      ? 'bg-purple-600/15 text-purple-400 border border-purple-500/20'
+                      : 'bg-blue-600/15 text-blue-400 border border-blue-500/20'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100 border border-transparent',
                 )}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
-                {label}
+                <span className={cn(
+                  'whitespace-nowrap transition-all duration-200 overflow-hidden',
+                  isOpen ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0 md:hidden',
+                )}>
+                  {label}
+                </span>
               </Link>
             )
           })}
-
-          {isAdmin && (
-            <Link
-              href="/admin"
-              onClick={() => { if (window.innerWidth < 768) close() }}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
-                pathname === '/admin'
-                  ? 'bg-purple-50 text-purple-700 border border-purple-100'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
-              )}
-            >
-              <Shield className="w-5 h-5 flex-shrink-0" />
-              Admin Console
-            </Link>
-          )}
         </nav>
 
-        {/* Sign out */}
-        <div className="px-3 py-4 border-t border-gray-100">
+        {/* Sign out + collapse */}
+        <div className="px-2 py-4 border-t border-slate-800 space-y-1">
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+            title="Sign Out"
+            className={cn(
+              'flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium border border-transparent',
+              'text-slate-400 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all duration-200',
+              !isOpen && 'md:justify-center md:px-2',
+            )}
           >
-            <LogOut className="w-5 h-5" />
-            Sign Out
+            <LogOut className="w-5 h-5 flex-shrink-0" />
+            <span className={cn(
+              'whitespace-nowrap transition-all duration-200 overflow-hidden',
+              isOpen ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0 md:hidden',
+            )}>
+              Sign Out
+            </span>
+          </button>
+
+          {/* Desktop collapse toggle */}
+          <button
+            onClick={toggle}
+            title={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+            className={cn(
+              'hidden md:flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium border border-transparent',
+              'text-slate-500 hover:bg-slate-800 hover:text-slate-300 transition-all duration-200',
+              !isOpen && 'md:justify-center md:px-2',
+            )}
+          >
+            {isOpen
+              ? <><ChevronLeft className="w-5 h-5 flex-shrink-0" /><span className="whitespace-nowrap">Collapse</span></>
+              : <ChevronRight className="w-5 h-5 flex-shrink-0" />
+            }
           </button>
         </div>
       </aside>

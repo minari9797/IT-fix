@@ -50,59 +50,61 @@ export default function TechniciansPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Sidebar />
       <Topbar title="Technicians" />
 
       <main className={cn(
-        "pb-24 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-0"
+        "pb-24 md:pb-8 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-16"
       )}>
-        <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-2xl">
+        <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
           {/* Header */}
-          <div className="mb-5 hidden md:block">
-            <h2 className="text-xl font-bold text-gray-900">Technicians</h2>
-            <p className="text-sm text-gray-400 mt-0.5">Meet the team handling your tickets</p>
+          <div className="mb-8 hidden md:block">
+            <h1 className="text-3xl font-bold text-slate-100 tracking-tight">Technicians</h1>
+            <p className="text-sm text-slate-400 mt-1.5 font-medium">Meet the team handling your tickets</p>
           </div>
 
           {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="relative mb-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
               type="text"
               placeholder="Search by name or specialty..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all duration-200"
+              className="w-full pl-11 pr-4 py-3.5 rounded-lg border border-slate-700 bg-slate-800 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-sm"
             />
           </div>
 
-          {/* Stats chip */}
+          {/* Stats counts */}
           {!loading && (
-            <div className="flex gap-2 mb-4">
-              <span className="text-xs px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-500">
-                {technicians.length} technicians
+            <div className="flex gap-2.5 mb-6">
+              <span className="text-xs font-bold px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-400 uppercase tracking-widest shadow-sm">
+                {technicians.length} Team Members
               </span>
-              <span className="text-xs px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-600">
-                {technicians.filter((t) => t.available).length} available
+              <span className="text-xs font-bold px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 uppercase tracking-widest shadow-sm">
+                {technicians.filter((t) => t.available).length} Available Now
               </span>
             </div>
           )}
 
-          {/* List */}
-          <div className="space-y-3">
+          {/* Technicians grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {loading ? (
-              Array.from({ length: 5 }).map((_, i) => <TechnicianCardSkeleton key={i} />)
+              Array.from({ length: 6 }).map((_, i) => <TechnicianCardSkeleton key={i} />)
             ) : filtered.length === 0 ? (
-              <EmptyState
-                icon={<Users className="w-7 h-7" />}
-                title="No technicians found"
-                description={
-                  search
-                    ? `No results for "${search}"`
-                    : 'No technicians have been added yet.'
-                }
-              />
+              <div className="lg:col-span-2 xl:col-span-3">
+                <EmptyState
+                  icon={<Users className="w-8 h-8" />}
+                  title="No technicians found"
+                  description={
+                    search
+                      ? `No results match "${search}"`
+                      : 'Our team list is currently being updated.'
+                  }
+                />
+              </div>
             ) : (
               filtered.map((tech, i) => (
                 <div

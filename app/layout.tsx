@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-50 text-gray-900 antialiased`}>
+      <body className={`${inter.className} bg-slate-950 text-slate-100 antialiased selection:bg-blue-500/30 selection:text-blue-200`}>
         <SidebarProvider>
           {children}
         </SidebarProvider>
@@ -28,17 +28,18 @@ export default function RootLayout({
           toastOptions={{
             duration: 4000,
             style: {
-              borderRadius: '12px',
-              background: '#1f2937',
-              color: '#f9fafb',
+              borderRadius: '8px',
+              background: '#1e293b', // slate-800
+              color: '#f1f5f9', // slate-100
               fontSize: '14px',
               padding: '12px 16px',
+              border: '1px solid #334155', // slate-700
             },
             success: {
-              iconTheme: { primary: '#10b981', secondary: '#f9fafb' },
+              iconTheme: { primary: '#3b82f6', secondary: '#f1f5f9' },
             },
             error: {
-              iconTheme: { primary: '#ef4444', secondary: '#f9fafb' },
+              iconTheme: { primary: '#ef4444', secondary: '#f1f5f9' },
             },
           }}
         />

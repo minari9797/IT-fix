@@ -83,22 +83,22 @@ export default function DashboardPage() {
   if (authLoading) return null
 
   return (
-    <div className="min-h-screen bg-gray-50 uppercase-first">
+    <div className="min-h-screen uppercase-first">
       <Sidebar />
       <Topbar title="Dashboard" />
 
       <main className={cn(
-        "pb-24 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-0"
+        "pb-24 md:pb-8 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-16"
       )}>
-        <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-3xl md:max-w-none">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-6">
+        <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
+          {/* Header — desktop only (mobile uses Topbar) */}
+          <div className="flex items-start justify-between mb-8">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-slate-100 tracking-tight">
                 Hey, {firstName} 👋
-              </h2>
-              <p className="text-sm text-gray-400 mt-0.5">Here's your support overview</p>
+              </h1>
+              <p className="text-sm text-slate-400 mt-1.5 font-medium">Here's your support overview</p>
             </div>
             <Button
               onClick={() => router.push('/create-ticket')}
@@ -111,19 +111,19 @@ export default function DashboardPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             {[
-              { label: 'Total', value: stats.total, icon: Ticket, color: 'text-gray-600 bg-gray-100' },
-              { label: 'Pending', value: stats.pending, icon: Clock, color: 'text-amber-600 bg-amber-50' },
-              { label: 'In Progress', value: stats.inProgress, icon: TrendingUp, color: 'text-blue-600 bg-blue-50' },
-              { label: 'Resolved', value: stats.resolved, icon: CheckCircle2, color: 'text-emerald-600 bg-emerald-50' },
+              { label: 'Total', value: stats.total, icon: Ticket, color: 'text-slate-400 bg-slate-800/50' },
+              { label: 'Pending', value: stats.pending, icon: Clock, color: 'text-amber-400 bg-amber-400/10' },
+              { label: 'In Progress', value: stats.inProgress, icon: TrendingUp, color: 'text-blue-400 bg-blue-400/10' },
+              { label: 'Resolved', value: stats.resolved, icon: CheckCircle2, color: 'text-emerald-400 bg-emerald-400/10' },
             ].map((stat) => (
-              <div key={stat.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center mb-2 ${stat.color}`}>
-                  <stat.icon className="w-4 h-4" />
+              <div key={stat.label} className="bg-slate-800 rounded-lg border border-slate-700 p-5 shadow-sm">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${stat.color}`}>
+                  <stat.icon className="w-5 h-5" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{stat.label}</div>
+                <div className="text-2xl font-bold text-slate-100">{stat.value}</div>
+                <div className="text-xs font-medium text-slate-500 mt-1 uppercase tracking-wider">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -134,10 +134,10 @@ export default function DashboardPage() {
               <button
                 key={f.value}
                 onClick={() => setFilter(f.value)}
-                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200
+                className={`flex-shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200
                   ${filter === f.value
-                    ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-200'
-                    : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
+                    : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-600 hover:text-slate-200'
                   }`}
               >
                 {f.label}
@@ -146,27 +146,29 @@ export default function DashboardPage() {
           </div>
 
           {/* Ticket list */}
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => <TicketCardSkeleton key={i} />)
             ) : filtered.length === 0 ? (
-              <EmptyState
-                icon={<Ticket className="w-7 h-7" />}
-                title="No tickets yet"
-                description={
-                  filter === 'all'
-                    ? "You haven't submitted any support tickets yet."
-                    : `No ${filter.replace('_', ' ')} tickets found.`
-                }
-                action={
-                  filter === 'all' ? (
-                    <Button onClick={() => router.push('/create-ticket')}>
-                      <Plus className="w-4 h-4" />
-                      Create your first ticket
-                    </Button>
-                  ) : undefined
-                }
-              />
+              <div className="lg:col-span-2">
+                <EmptyState
+                  icon={<Ticket className="w-7 h-7" />}
+                  title="No tickets yet"
+                  description={
+                    filter === 'all'
+                      ? "You haven't submitted any support tickets yet."
+                      : `No ${filter.replace('_', ' ')} tickets found.`
+                  }
+                  action={
+                    filter === 'all' ? (
+                      <Button onClick={() => router.push('/create-ticket')}>
+                        <Plus className="w-4 h-4" />
+                        Create your first ticket
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              </div>
             ) : (
               filtered.map((ticket, i) => (
                 <div
@@ -185,7 +187,7 @@ export default function DashboardPage() {
       {/* Mobile FAB */}
       <button
         onClick={() => router.push('/create-ticket')}
-        className="fixed bottom-20 right-4 md:hidden w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-300 active:scale-95 transition-transform z-40"
+        className="fixed bottom-20 right-6 md:hidden w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-900/40 active:scale-95 transition-all z-40"
       >
         <Plus className="w-6 h-6" />
       </button>
