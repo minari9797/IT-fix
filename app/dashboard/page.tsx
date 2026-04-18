@@ -95,10 +95,10 @@ export default function DashboardPage() {
           {/* Header — desktop only (mobile uses Topbar) */}
           <div className="flex items-start justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-slate-100 tracking-tight">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                 Hey, {firstName} 👋
               </h1>
-              <p className="text-sm text-slate-400 mt-1.5 font-medium">Here's your support overview</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Here's your support overview</p>
             </div>
             <Button
               onClick={() => router.push('/create-ticket')}
@@ -113,16 +113,16 @@ export default function DashboardPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             {[
-              { label: 'Total', value: stats.total, icon: Ticket, color: 'text-slate-400 bg-slate-800/50' },
-              { label: 'Pending', value: stats.pending, icon: Clock, color: 'text-amber-400 bg-amber-400/10' },
-              { label: 'In Progress', value: stats.inProgress, icon: TrendingUp, color: 'text-blue-400 bg-blue-400/10' },
-              { label: 'Resolved', value: stats.resolved, icon: CheckCircle2, color: 'text-emerald-400 bg-emerald-400/10' },
+              { label: 'Total', value: stats.total, icon: Ticket, color: 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50' },
+              { label: 'Pending', value: stats.pending, icon: Clock, color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-400/10' },
+              { label: 'In Progress', value: stats.inProgress, icon: TrendingUp, color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-400/10' },
+              { label: 'Resolved', value: stats.resolved, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10' },
             ].map((stat) => (
-              <div key={stat.label} className="bg-slate-800 rounded-lg border border-slate-700 p-5 shadow-sm">
+              <div key={stat.label} className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5 shadow-sm transition-colors duration-300">
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${stat.color}`}>
                   <stat.icon className="w-5 h-5" />
                 </div>
-                <div className="text-2xl font-bold text-slate-100">{stat.value}</div>
+                <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stat.value}</div>
                 <div className="text-xs font-medium text-slate-500 mt-1 uppercase tracking-wider">{stat.label}</div>
               </div>
             ))}
@@ -136,8 +136,8 @@ export default function DashboardPage() {
                 onClick={() => setFilter(f.value)}
                 className={`flex-shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200
                   ${filter === f.value
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
-                    : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-600 hover:text-slate-200'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                    : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-slate-200 shadow-sm'
                   }`}
               >
                 {f.label}

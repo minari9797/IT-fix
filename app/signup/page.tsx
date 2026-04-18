@@ -50,7 +50,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
        {/* Ambient Light Effects */}
        <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-400/5 blur-[120px] rounded-full pointer-events-none" />
@@ -61,7 +61,7 @@ export default function SignupPage() {
           <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center shadow-2xl shadow-blue-900/50 mb-4 transition-transform hover:rotate-6 duration-300">
             <Zap className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight">Create Account</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Create Account</h1>
           <p className="text-sm font-bold text-slate-500 mt-2 uppercase tracking-widest leading-none">Access Node Provisioning</p>
         </div>
 
@@ -93,7 +93,7 @@ export default function SignupPage() {
             />
             
             <div className="flex flex-col gap-2">
-              <label htmlFor="password" className="text-sm font-semibold text-slate-300">Account Access Key</label>
+              <label htmlFor="password" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Account Access Key</label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
                   <Lock className="w-4 h-4" />
@@ -106,15 +106,15 @@ export default function SignupPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="new-password"
                   className={cn(
-                    "w-full rounded-lg border bg-slate-800/50 pl-11 pr-11 py-3.5 text-slate-100 text-sm placeholder:text-slate-600 transition-all duration-200 outline-none",
+                    "w-full rounded-lg border bg-white dark:bg-slate-800/50 pl-11 pr-11 py-3.5 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-600 transition-all duration-200 outline-none",
                     "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
-                    errors.password ? 'border-red-500' : 'border-slate-700'
+                    errors.password ? 'border-red-500' : 'border-slate-300 dark:border-slate-700'
                   )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -127,9 +127,9 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          <p className="text-center text-sm font-medium text-slate-400 mt-8">
+          <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400 mt-8">
             Already registered?{' '}
-            <Link href="/login" className="text-blue-400 font-bold hover:text-blue-300 transition-colors">
+            <Link href="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:text-blue-500 dark:hover:text-blue-300 transition-colors">
               Node Authentication
             </Link>
           </p>

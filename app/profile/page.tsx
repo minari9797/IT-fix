@@ -81,10 +81,10 @@ export default function ProfilePage() {
               <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-blue-900/50 mb-4">
                 {initials}
               </div>
-              <h1 className="text-2xl font-bold text-slate-100">{fullName}</h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{fullName}</h1>
               <div className="flex items-center gap-1.5 mt-1.5">
-                <Mail className="w-4 h-4 text-slate-500" />
-                <p className="text-sm font-medium text-slate-400">{email}</p>
+                <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{email}</p>
               </div>
               <div className="flex items-center gap-1.5 mt-4">
                 <Shield className="w-4 h-4 text-blue-400" />
@@ -101,41 +101,41 @@ export default function ProfilePage() {
           {/* Stats grid */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: 'Total', value: ticketStats.total, icon: Ticket, color: 'text-slate-400 bg-slate-700/50' },
-              { label: 'Pending', value: ticketStats.pending, icon: Clock, color: 'text-amber-400 bg-amber-400/10' },
-              { label: 'Resolved', value: ticketStats.resolved, icon: CheckCircle2, color: 'text-emerald-400 bg-emerald-400/10' },
+              { label: 'Total', value: ticketStats.total, icon: Ticket, color: 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50' },
+              { label: 'Pending', value: ticketStats.pending, icon: Clock, color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-400/10' },
+              { label: 'Resolved', value: ticketStats.resolved, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10' },
             ].map((s) => (
               <Card key={s.label} className="text-center py-5">
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center mx-auto mb-2.5 ${s.color}`}>
                   <s.icon className="w-5 h-5" />
                 </div>
-                <div className="text-xl font-bold text-slate-100">{s.value}</div>
+                <div className="text-xl font-bold text-slate-900 dark:text-slate-100">{s.value}</div>
                 <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{s.label}</div>
               </Card>
             ))}
           </div>
 
           {/* Account information details */}
-          <Card className="divide-y divide-slate-700/50">
+          <Card className="divide-y divide-slate-200 dark:divide-slate-700/50">
             <div className="pb-3 px-1">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Account Details</p>
             </div>
             <div className="py-5 flex items-center gap-4 px-1">
-              <div className="w-11 h-11 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center shadow-inner">
+              <div className="w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50 flex items-center justify-center shadow-inner">
                 <User className="w-5 h-5 text-slate-400" />
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Full Name</p>
-                <p className="text-base font-semibold text-slate-200 tracking-tight">{fullName}</p>
+                <p className="text-base font-semibold text-slate-800 dark:text-slate-200 tracking-tight">{fullName}</p>
               </div>
             </div>
             <div className="py-5 flex items-center gap-4 px-1">
-              <div className="w-11 h-11 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center shadow-inner">
+              <div className="w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50 flex items-center justify-center shadow-inner">
                 <Mail className="w-5 h-5 text-slate-400" />
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Email Address</p>
-                <p className="text-base font-semibold text-slate-200 tracking-tight">{email}</p>
+                <p className="text-base font-semibold text-slate-800 dark:text-slate-200 tracking-tight">{email}</p>
               </div>
             </div>
           </Card>

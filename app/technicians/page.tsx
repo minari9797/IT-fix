@@ -61,8 +61,8 @@ export default function TechniciansPage() {
         <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
           {/* Header */}
           <div className="mb-8 hidden md:block">
-            <h1 className="text-3xl font-bold text-slate-100 tracking-tight">Technicians</h1>
-            <p className="text-sm text-slate-400 mt-1.5 font-medium">Meet the team handling your tickets</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Technicians</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Meet the team handling your tickets</p>
           </div>
 
           {/* Search */}
@@ -73,17 +73,17 @@ export default function TechniciansPage() {
               placeholder="Search by name or specialty..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 rounded-lg border border-slate-700 bg-slate-800 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-sm"
+              className="w-full pl-11 pr-4 py-3.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-sm"
             />
           </div>
 
           {/* Stats counts */}
           {!loading && (
             <div className="flex gap-2.5 mb-6">
-              <span className="text-xs font-bold px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-400 uppercase tracking-widest shadow-sm">
+              <span className="text-xs font-bold px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 dark:text-slate-400 uppercase tracking-widest shadow-sm">
                 {technicians.length} Team Members
               </span>
-              <span className="text-xs font-bold px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 uppercase tracking-widest shadow-sm">
+              <span className="text-xs font-bold px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-lg text-emerald-600 dark:text-emerald-400 uppercase tracking-widest shadow-sm">
                 {technicians.filter((t) => t.available).length} Available Now
               </span>
             </div>

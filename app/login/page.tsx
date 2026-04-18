@@ -54,7 +54,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center shadow-2xl shadow-blue-900/50 mb-4 transition-transform hover:scale-110 duration-300">
             <Zap className="w-8 h-8 text-white fill-white/20" />
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight">IT-Fix</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">IT-Fix</h1>
           <p className="text-sm font-bold text-slate-500 mt-2 uppercase tracking-widest">Enterprise Support Portal</p>
         </div>
 
@@ -75,8 +75,8 @@ export default function LoginPage() {
             
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-semibold text-slate-300">Access Key</label>
-                <Link href="#" className="text-[10px] font-bold text-blue-400 uppercase tracking-widest hover:text-blue-300 transition-colors">Forgot?</Link>
+                <label htmlFor="password" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Access Key</label>
+                <Link href="#" className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest hover:text-blue-500 dark:hover:text-blue-300 transition-colors">Forgot?</Link>
               </div>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
@@ -90,15 +90,15 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
                   className={cn(
-                    "w-full rounded-lg border bg-slate-800/50 pl-11 pr-11 py-3.5 text-slate-100 text-sm placeholder:text-slate-600 transition-all duration-200 outline-none",
+                    "w-full rounded-lg border bg-white dark:bg-slate-800/50 pl-11 pr-11 py-3.5 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-600 transition-all duration-200 outline-none",
                     "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
-                    errors.password ? 'border-red-500' : 'border-slate-700'
+                    errors.password ? 'border-red-500' : 'border-slate-300 dark:border-slate-700'
                   )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -112,13 +112,13 @@ export default function LoginPage() {
           </form>
 
           <div className="relative my-8">
-             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-700/50"></div></div>
-             <div className="relative flex justify-center text-[10px] uppercase tracking-widest"><span className="bg-slate-800 px-3 text-slate-500 font-bold">New to Platform</span></div>
+             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200 dark:border-slate-700/50"></div></div>
+             <div className="relative flex justify-center text-[10px] uppercase tracking-widest"><span className="bg-white dark:bg-slate-800 px-3 text-slate-500 font-bold">New to Platform</span></div>
           </div>
 
-          <p className="text-center text-sm font-medium text-slate-400">
+          <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400">
             Don't have an account?{' '}
-            <Link href="/signup" className="text-blue-400 font-bold hover:text-blue-300 transition-colors">
+            <Link href="/signup" className="text-blue-600 dark:text-blue-400 font-bold hover:text-blue-500 dark:hover:text-blue-300 transition-colors">
               Request Access
             </Link>
           </p>

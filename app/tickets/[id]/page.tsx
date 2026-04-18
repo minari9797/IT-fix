@@ -57,14 +57,14 @@ export default function TicketDetailPage() {
       <Sidebar />
 
       {/* Mobile Header (Topbar replacement) */}
-      <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3.5 flex items-center gap-4 md:hidden">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3.5 flex items-center gap-4 md:hidden transition-colors duration-300">
         <button
           onClick={() => router.back()}
-          className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-slate-100 transition-all active:scale-95"
+          className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-all active:scale-95"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <span className="text-sm font-bold text-slate-100 truncate tracking-tight">
+        <span className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate tracking-tight">
           {loading ? 'Ticket...' : ticket?.title || 'Details'}
         </span>
       </header>
@@ -78,16 +78,16 @@ export default function TicketDetailPage() {
           <div className="hidden md:flex items-center gap-6 mb-8 group">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-100 transition-all"
+              className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-all"
             >
-              <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center group-hover:border-slate-600 transition-colors shadow-sm">
+              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center group-hover:border-slate-400 dark:group-hover:border-slate-600 transition-colors shadow-sm">
                 <ArrowLeft className="w-4 h-4" />
               </div>
               Back to Dashboard
             </button>
-            <div className="h-4 w-px bg-slate-800" />
+            <div className="h-4 w-px bg-slate-200 dark:bg-slate-800" />
             <div className="flex items-center gap-3 min-w-0">
-               <h1 className="text-xl font-bold text-slate-100 truncate tracking-tight">
+               <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate tracking-tight">
                 {loading ? 'Loading...' : ticket?.title || 'Ticket Detail'}
               </h1>
             </div>
@@ -115,19 +115,19 @@ export default function TicketDetailPage() {
                 {/* Status/Priority Banner (Mobile Only) */}
                 <div className="flex flex-wrap items-center gap-3 lg:hidden mb-2">
                    <StatusBadge status={ticket.status} />
-                   <span className={cn('text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg border border-slate-700 bg-slate-800', PRIORITY_CONFIG[ticket.priority].color)}>
+                   <span className={cn('text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800', PRIORITY_CONFIG[ticket.priority].color)}>
                     {PRIORITY_CONFIG[ticket.priority].label} Priority
                   </span>
                 </div>
 
                 {/* Description Card */}
                 <Card className="p-0 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-slate-700/50 bg-slate-800/30 flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-blue-400" />
-                    <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Problem Description</h2>
+                  <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/30 flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                    <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Problem Description</h2>
                   </div>
                   <div className="p-6">
-                    <p className="text-base text-slate-200 leading-relaxed whitespace-pre-wrap font-medium tracking-tight">
+                    <p className="text-base text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap font-medium tracking-tight">
                       {ticket.description}
                     </p>
                   </div>
@@ -136,12 +136,12 @@ export default function TicketDetailPage() {
                 {/* Screenshot/Attachment Card */}
                 {ticket.image_url && (
                   <Card className="p-0 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-700/50 bg-slate-800/30 flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-blue-400" />
-                      <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Visual Evidence</h2>
+                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/30 flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                      <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Visual Evidence</h2>
                     </div>
-                    <div className="p-6 bg-slate-900/50">
-                      <div className="rounded-lg overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl">
+                    <div className="p-6 bg-slate-50 dark:bg-slate-900/50">
+                      <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl">
                         <img
                           src={ticket.image_url}
                           alt="problem screenshot"
@@ -167,18 +167,18 @@ export default function TicketDetailPage() {
                     <div className="flex flex-col gap-1.5">
                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Priority Ranking</p>
                       <div className="flex">
-                         <span className={cn('text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg border border-slate-700/50 bg-slate-800/50', PRIORITY_CONFIG[ticket.priority].color)}>
+                         <span className={cn('text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-800/50', PRIORITY_CONFIG[ticket.priority].color)}>
                           {PRIORITY_CONFIG[ticket.priority].label} Level
                         </span>
                       </div>
                     </div>
-                    <div className="pt-4 border-t border-slate-700/50 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-slate-700/30 flex items-center justify-center">
-                        <Calendar className="w-4 h-4 text-slate-500" />
+                    <div className="pt-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-700/30 flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Submitted On</p>
-                        <p className="text-xs font-semibold text-slate-300">{formatDate(ticket.created_at)}</p>
+                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{formatDate(ticket.created_at)}</p>
                       </div>
                     </div>
                   </div>
@@ -192,13 +192,13 @@ export default function TicketDetailPage() {
                   </div>
                   {ticket.technicians ? (
                     <div className="flex items-center gap-4 group">
-                      <div className="w-12 h-12 rounded-full border-2 border-slate-700 p-0.5 shadow-sm group-hover:border-blue-500/50 transition-colors">
+                      <div className="w-12 h-12 rounded-full border-2 border-slate-200 dark:border-slate-700 p-0.5 shadow-sm group-hover:border-blue-500/50 transition-colors">
                         <div className="w-full h-full rounded-full bg-blue-600 flex items-center justify-center text-white text-base font-bold shadow-inner">
                           {ticket.technicians.name[0].toUpperCase()}
                         </div>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-slate-100 tracking-tight leading-tight">{ticket.technicians.name}</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-tight">{ticket.technicians.name}</p>
                         <p className="text-xs font-medium text-slate-500 mt-1 truncate">{ticket.technicians.specialty}</p>
                       </div>
                     </div>
