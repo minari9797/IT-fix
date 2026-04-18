@@ -61,24 +61,24 @@ export default function TechnicianCard({ technician }: TechnicianCardProps) {
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-gray-900 truncate">{technician.name}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{technician.name}</h3>
           </div>
-          <div className="flex items-center gap-1 mt-0.5">
-            <Wrench className="w-3 h-3 text-gray-400" />
-            <span className="text-xs text-gray-400 truncate">{technician.specialty}</span>
+          <div className="flex items-center gap-1 mt-1">
+            <Wrench className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{technician.specialty}</span>
           </div>
         </div>
 
         {/* Status */}
         <div
           className={cn(
-            'flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium flex-shrink-0',
+            'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 border',
             technician.available
-              ? 'bg-emerald-50 text-emerald-600'
-              : 'bg-gray-100 text-gray-400'
+              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+              : 'bg-slate-100 dark:bg-slate-700/50 text-slate-500 border-slate-200 dark:border-slate-700'
           )}
         >
-          <CheckCircle className="w-3 h-3" />
+          <CheckCircle className="w-3.5 h-3.5" />
           {technician.available ? 'Available' : 'Busy'}
         </div>
       </div>

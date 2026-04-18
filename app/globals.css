@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
@@ -7,16 +9,50 @@
 
   html {
     scroll-behavior: smooth;
+    --toast-bg: #ffffff;
+    --toast-color: #0f172a;
+    --toast-border: #e2e8f0;
+  }
+
+  html.dark {
+    --toast-bg: #1e293b;
+    --toast-color: #f1f5f9;
+    --toast-border: #334155;
   }
 
   body {
-    @apply bg-gray-50;
+    @apply min-h-screen transition-colors duration-300;
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+
+  html.dark body {
+    background-color: #020617;
+    color: #f1f5f9;
   }
 
   /* Safe area for iPhone */
   .safe-area-inset-bottom {
     padding-bottom: env(safe-area-inset-bottom, 8px);
   }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: theme('colors.slate.700');
+    border-radius: 99px;
+  }
+}
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-slate-750: #1e293b;
 }
 
 @layer utilities {
@@ -62,4 +98,9 @@
 
 .animate-slide-up {
   animation: slideUp 0.4s ease-out forwards;
+}
+
+/* Subtle glow for active states */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
 }

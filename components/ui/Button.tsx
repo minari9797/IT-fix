@@ -14,15 +14,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', loading, fullWidth, children, disabled, ...props }, ref) => {
     const base =
-      'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2'
+      'inline-flex items-center justify-center gap-2 font-semibold rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900'
 
     const variants = {
       primary:
-        'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-200 hover:shadow-lg hover:shadow-emerald-300 hover:brightness-105 focus:ring-emerald-400',
+        'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 focus:ring-blue-500',
       secondary:
-        'bg-white text-gray-700 border border-gray-200 shadow-sm hover:bg-gray-50 hover:border-gray-300 focus:ring-gray-300',
-      ghost: 'bg-transparent text-gray-600 hover:bg-gray-100 focus:ring-gray-200',
-      danger: 'bg-red-500 text-white shadow-sm hover:bg-red-600 focus:ring-red-400',
+        'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-100 border border-slate-200 dark:border-slate-600 shadow-sm hover:bg-slate-200 dark:hover:bg-slate-600 focus:ring-slate-500',
+      ghost: 'bg-transparent text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 focus:ring-slate-500',
+      danger: 'bg-red-600 hover:bg-red-500 text-white shadow-sm shadow-red-500/20 focus:ring-red-500',
     }
 
     const sizes = {

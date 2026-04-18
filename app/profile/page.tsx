@@ -65,88 +65,94 @@ export default function ProfilePage() {
   if (authLoading) return null
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Sidebar />
       <Topbar title="Profile" />
 
       <main className={cn(
-        "pb-24 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-0"
+        "pb-24 md:pb-8 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-16"
       )}>
-        <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-lg">
+        <div className="px-4 pt-4 md:px-8 md:pt-10 max-w-lg mx-auto w-full space-y-4">
 
           {/* Avatar card */}
-          <Card className="mb-4 text-center py-8">
+          <Card className="text-center py-10 shadow-xl shadow-blue-900/10">
             <div className="flex flex-col items-center">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-emerald-200 mb-4">
+              <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-blue-900/50 mb-4">
                 {initials}
               </div>
-              <h2 className="text-lg font-bold text-gray-900">{fullName}</h2>
-              <div className="flex items-center gap-1.5 mt-1">
-                <Mail className="w-3.5 h-3.5 text-gray-400" />
-                <p className="text-sm text-gray-400">{email}</p>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{fullName}</h1>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{email}</p>
               </div>
-              <div className="flex items-center gap-1.5 mt-2">
-                <Shield className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+              <div className="flex items-center gap-1.5 mt-4">
+                <Shield className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-semibold text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full uppercase tracking-wider">
                   Verified Member
                 </span>
               </div>
               {joinDate && (
-                <p className="text-xs text-gray-300 mt-2">Member since {joinDate}</p>
+                <p className="text-xs text-slate-500 mt-4 font-medium">Member since {joinDate}</p>
               )}
             </div>
           </Card>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          {/* Stats grid */}
+          <div className="grid grid-cols-3 gap-3">
             {[
-              { label: 'Total', value: ticketStats.total, icon: Ticket, color: 'text-gray-600 bg-gray-100' },
-              { label: 'Pending', value: ticketStats.pending, icon: Clock, color: 'text-amber-600 bg-amber-50' },
-              { label: 'Resolved', value: ticketStats.resolved, icon: CheckCircle2, color: 'text-emerald-600 bg-emerald-50' },
+              { label: 'Total', value: ticketStats.total, icon: Ticket, color: 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50' },
+              { label: 'Pending', value: ticketStats.pending, icon: Clock, color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-400/10' },
+              { label: 'Resolved', value: ticketStats.resolved, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10' },
             ].map((s) => (
-              <Card key={s.label} className="text-center py-4">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center mx-auto mb-2 ${s.color}`}>
-                  <s.icon className="w-4 h-4" />
+              <Card key={s.label} className="text-center py-5">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center mx-auto mb-2.5 ${s.color}`}>
+                  <s.icon className="w-5 h-5" />
                 </div>
-                <div className="text-xl font-bold text-gray-900">{s.value}</div>
-                <div className="text-xs text-gray-400">{s.label}</div>
+                <div className="text-xl font-bold text-slate-900 dark:text-slate-100">{s.value}</div>
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{s.label}</div>
               </Card>
             ))}
           </div>
 
-          {/* Account info */}
-          <Card className="mb-4 divide-y divide-gray-50">
-            <div className="py-3 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center">
-                <User className="w-4 h-4 text-gray-400" />
+          {/* Account information details */}
+          <Card className="divide-y divide-slate-200 dark:divide-slate-700/50">
+            <div className="pb-3 px-1">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Account Details</p>
+            </div>
+            <div className="py-5 flex items-center gap-4 px-1">
+              <div className="w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50 flex items-center justify-center shadow-inner">
+                <User className="w-5 h-5 text-slate-400" />
               </div>
               <div>
-                <p className="text-xs text-gray-400">Full Name</p>
-                <p className="text-sm font-medium text-gray-800">{fullName}</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Full Name</p>
+                <p className="text-base font-semibold text-slate-800 dark:text-slate-200 tracking-tight">{fullName}</p>
               </div>
             </div>
-            <div className="py-3 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center">
-                <Mail className="w-4 h-4 text-gray-400" />
+            <div className="py-5 flex items-center gap-4 px-1">
+              <div className="w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50 flex items-center justify-center shadow-inner">
+                <Mail className="w-5 h-5 text-slate-400" />
               </div>
               <div>
-                <p className="text-xs text-gray-400">Email</p>
-                <p className="text-sm font-medium text-gray-800">{email}</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Email Address</p>
+                <p className="text-base font-semibold text-slate-800 dark:text-slate-200 tracking-tight">{email}</p>
               </div>
             </div>
           </Card>
 
-          {/* Sign out */}
+          {/* Action button */}
           <Button
             variant="danger"
             fullWidth
+            size="lg"
             loading={signingOut}
             onClick={handleSignOut}
+            className="mt-2 shadow-lg shadow-red-900/20"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
           </Button>
+
         </div>
       </main>
 

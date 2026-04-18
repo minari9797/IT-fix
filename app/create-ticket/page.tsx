@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { FileText, AlignLeft, AlertCircle, Image as ImageIcon, X, Upload, ChevronDown } from 'lucide-react'
+import { FileText, AlignLeft, AlertCircle, Image as ImageIcon, X, Upload, ChevronDown, PlusCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
@@ -14,11 +14,13 @@ import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import Card from '@/components/ui/Card'
+import { cn } from '@/lib/utils'
 
 const PRIORITIES = [
-  { value: 'low', label: 'Low', color: 'text-gray-600' },
-  { value: 'medium', label: 'Medium', color: 'text-orange-500' },
-  { value: 'high', label: 'High', color: 'text-red-500' },
+  { value: 'low', label: 'Low', color: 'text-slate-400' },
+  { value: 'medium', label: 'Medium', color: 'text-orange-400' },
+  { value: 'high', label: 'High', color: 'text-red-400' },
 ]
 
 export default function CreateTicketPage() {
@@ -78,7 +80,8 @@ export default function CreateTicketPage() {
         .upload(filename, image)
 
       if (uploadError) {
-        toast.error('Image upload failed')
+        console.error('Storage upload error:', uploadError)
+        toast.error(`Image upload failed: ${uploadError.message}`)
         setLoading(false)
         return
       }
@@ -100,7 +103,8 @@ export default function CreateTicketPage() {
     setLoading(false)
 
     if (error) {
-      toast.error('Failed to create ticket')
+      console.error('Ticket insert error:', error)
+      toast.error(`Failed to create ticket: ${error.message}`)
     } else {
       toast.success('Ticket submitted!')
       router.push('/dashboard')
@@ -108,114 +112,167 @@ export default function CreateTicketPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Sidebar />
       <Topbar title="New Ticket" />
 
       <main className={cn(
-        "pb-24 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-0"
+        "pb-24 md:pb-8 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-16"
       )}>
-        <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-xl">
-          <div className="mb-6 hidden md:block">
-            <h2 className="text-xl font-bold text-gray-900">Create Ticket</h2>
-            <p className="text-sm text-gray-400 mt-0.5">Describe your IT issue and we'll get it sorted</p>
+        <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
+
+          {/* Page Heading */}
+          <div className="mb-8 hidden md:block">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Create Ticket</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Describe your IT issue and we'll get it sorted</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
-            {/* Title */}
-            <Input
-              id="title"
-              label="Issue Title"
-              placeholder="e.g. Laptop won't connect to Wi-Fi"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              error={errors.title}
-              icon={<FileText className="w-4 h-4" />}
-            />
+          <div className="flex flex-col lg:flex-row lg:items-start gap-10">
 
-            {/* Description */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Description</label>
-              <div className="relative">
-                <AlignLeft className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
-                <textarea
-                  placeholder="Describe the issue in detail — what happened, when it started, what you've tried..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={5}
-                  className={`w-full rounded-xl border bg-white pl-10 pr-4 py-3 text-gray-900 text-sm placeholder:text-gray-400 transition-all duration-200 outline-none resize-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${errors.description ? 'border-red-400' : 'border-gray-200'}`}
+            {/* Form Section */}
+            <div className="w-full lg:max-w-xl">
+              <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+                {/* Title */}
+                <Input
+                  id="title"
+                  label="Issue Title"
+                  placeholder="e.g. Laptop won't connect to Wi-Fi"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  error={errors.title}
+                  icon={<FileText className="w-4 h-4" />}
                 />
-              </div>
-              {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
-            </div>
 
-            {/* Priority */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Priority</label>
-              <div className="grid grid-cols-3 gap-2">
-                {PRIORITIES.map((p) => (
-                  <button
-                    key={p.value}
-                    type="button"
-                    onClick={() => setPriority(p.value as typeof priority)}
-                    className={`py-2.5 rounded-xl border text-sm font-medium transition-all duration-200
-                      ${priority === p.value
-                        ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
-                      }`}
-                  >
-                    <span className={priority === p.value ? '' : p.color}>{p.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Image upload */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Screenshot <span className="text-gray-400 font-normal">(optional)</span>
-              </label>
-
-              {imagePreview ? (
-                <div className="relative rounded-xl overflow-hidden border border-gray-200">
-                  <img src={imagePreview} alt="preview" className="w-full h-48 object-cover" />
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-gray-900/60 text-white flex items-center justify-center hover:bg-gray-900/80 transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                {/* Description */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Description</label>
+                  <div className="relative">
+                    <AlignLeft className="absolute left-3.5 top-4 w-4 h-4 text-slate-500" />
+                    <textarea
+                      placeholder="Describe the issue in detail — what happened, when it started, what you've tried..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={5}
+                      className={cn(
+                        "w-full rounded-lg border bg-white dark:bg-slate-800 pl-11 pr-4 py-3.5 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500",
+                        "transition-all duration-200 outline-none resize-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
+                        errors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-300 dark:border-slate-700'
+                      )}
+                    />
+                  </div>
+                  {errors.description && <p className="text-xs font-medium text-red-400 mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> {errors.description}
+                  </p>}
                 </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  className="flex flex-col items-center justify-center gap-2 py-8 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-200 cursor-pointer"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-                    <Upload className="w-5 h-5 text-gray-400" />
+
+                {/* Priority Selection */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Priority Level</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {PRIORITIES.map((p) => (
+                      <button
+                        key={p.value}
+                        type="button"
+                        onClick={() => setPriority(p.value as typeof priority)}
+                        className={cn(
+                          "py-3 rounded-lg border text-xs font-bold uppercase tracking-widest transition-all duration-200",
+                          priority === p.value
+                            ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-sm"
+                            : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:border-blue-400 dark:hover:border-slate-600"
+                        )}
+                      >
+                        <span className={priority === p.value ? 'text-blue-400' : p.color}>{p.label}</span>
+                      </button>
+                    ))}
                   </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-gray-600">Upload screenshot</p>
-                    <p className="text-xs text-gray-400 mt-0.5">PNG, JPG or GIF up to 5MB</p>
-                  </div>
-                </button>
-              )}
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
+                </div>
+
+                {/* Image Upload Area */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Attachment <span className="text-slate-500 font-normal ml-1">(Optional)</span>
+                  </label>
+
+                  {imagePreview ? (
+                    <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 group">
+                      <img src={imagePreview} alt="preview" className="w-full h-56 object-contain p-2" />
+                      <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={removeImage}
+                          className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-500 shadow-xl transition-all scale-90 group-hover:scale-100"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-3 py-10 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700",
+                        "bg-slate-50 dark:bg-slate-800/50 hover:border-blue-500/50 hover:bg-blue-50 dark:hover:bg-blue-500/5 transition-all duration-200 cursor-pointer"
+                      )}
+                    >
+                      <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-md">
+                        <Upload className="w-6 h-6 text-slate-400" />
+                      </div>
+                      <div className="text-center px-4">
+                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Upload Ticket Attachment</p>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">Click to select PNG, JPG or GIF (max 5MB)</p>
+                      </div>
+                    </button>
+                  )}
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </div>
+
+                <Button type="submit" fullWidth loading={loading} size="lg" className="mt-4 shadow-xl shadow-blue-900/40">
+                  <PlusCircle className="w-4 h-4 mr-1" /> Create Support Ticket
+                </Button>
+              </form>
             </div>
 
-            <Button type="submit" fullWidth loading={loading} size="lg">
-              Submit Ticket
-            </Button>
-          </form>
+            {/* Guidelines / Tips Aside */}
+            <aside className="hidden lg:block flex-1 min-w-[320px]">
+              <Card className="space-y-6 p-8 shadow-xl shadow-blue-900/5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600/10 flex items-center justify-center">
+                    <AlertCircle className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest">Submission Tips</h2>
+                </div>
+                
+                {[
+                  { icon: '📝', title: 'Be descriptive', body: 'Explain exactly what happened, including any specific error codes you encountered.' },
+                  { icon: '📸', title: 'Visual evidence', body: 'A screenshot helps our team identify UI bugs or system errors significantly faster.' },
+                  { icon: '⚡', title: 'Priority impact', body: 'Reserved high priority for issues that completely block your ability to work.' },
+                  { icon: '🕐', title: 'Response targets', body: 'We aim to review high priority tickets within 2 business hours of submission.' },
+                ].map((tip) => (
+                  <div key={tip.title} className="flex gap-4 group">
+                    <span className="text-2xl flex-shrink-0 grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all">{tip.icon}</span>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-0.5 tracking-tight">{tip.title}</p>
+                      <p className="text-xs text-slate-500 leading-relaxed font-medium">{tip.body}</p>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="pt-4 mt-2 border-t border-slate-200 dark:border-slate-700/50">
+                  <p className="text-[10px] font-bold text-slate-500 dark:text-slate-600 uppercase tracking-widest">Support Hours</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Mon - Fri, 9:00 AM - 6:00 PM</p>
+                </div>
+              </Card>
+            </aside>
+
+          </div>
         </div>
       </main>
 

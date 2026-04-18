@@ -53,110 +53,164 @@ export default function TicketDetailPage() {
   }, [id])
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Sidebar />
 
-      {/* Mobile topbar override */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center gap-3 md:hidden">
+      {/* Mobile Header (Topbar replacement) */}
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3.5 flex items-center gap-4 md:hidden transition-colors duration-300">
         <button
           onClick={() => router.back()}
-          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors"
+          className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-all active:scale-95"
         >
-          <ArrowLeft className="w-4 h-4 text-gray-600" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
-        <span className="text-base font-semibold text-gray-900 truncate">
-          {loading ? 'Loading...' : ticket?.title || 'Ticket'}
+        <span className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate tracking-tight">
+          {loading ? 'Ticket...' : ticket?.title || 'Details'}
         </span>
       </header>
 
       <main className={cn(
-        "pb-24 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-0"
+        "pb-24 md:pb-8 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-16"
       )}>
-        <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-2xl">
-          {/* Desktop back */}
-          <button
-            onClick={() => router.back()}
-            className="hidden md:flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors mb-5"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </button>
+        <div className="px-4 pt-4 md:px-10 md:pt-10 max-w-7xl">
+          {/* Desktop Navigation Row */}
+          <div className="hidden md:flex items-center gap-6 mb-8 group">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-all"
+            >
+              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center group-hover:border-slate-400 dark:group-hover:border-slate-600 transition-colors shadow-sm">
+                <ArrowLeft className="w-4 h-4" />
+              </div>
+              Back to Dashboard
+            </button>
+            <div className="h-4 w-px bg-slate-200 dark:bg-slate-800" />
+            <div className="flex items-center gap-3 min-w-0">
+               <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate tracking-tight">
+                {loading ? 'Loading...' : ticket?.title || 'Ticket Detail'}
+              </h1>
+            </div>
+          </div>
 
           {loading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-8 w-2/3" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-4/5" />
-              <Skeleton className="h-48 w-full rounded-2xl" />
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-4">
+                  <Skeleton className="h-64 w-full" />
+                  <Skeleton className="h-48 w-full" />
+                </div>
+                <div className="space-y-4">
+                  <Skeleton className="h-32 w-full" />
+                  <Skeleton className="h-32 w-full" />
+                </div>
+              </div>
             </div>
           ) : ticket ? (
-            <div className="space-y-4 animate-fade-in">
-              {/* Header */}
-              <Card>
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <h1 className="text-lg font-bold text-gray-900 leading-tight">{ticket.title}</h1>
-                  <StatusBadge status={ticket.status} />
-                </div>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${PRIORITY_CONFIG[ticket.priority].color}`}>
+            // Responsive Content Grid
+            <div className="flex flex-col lg:flex-row lg:items-start gap-8 animate-fade-in">
+
+              {/* MAIN CONTENT AREA */}
+              <div className="flex-1 space-y-6 min-w-0">
+                {/* Status/Priority Banner (Mobile Only) */}
+                <div className="flex flex-wrap items-center gap-3 lg:hidden mb-2">
+                   <StatusBadge status={ticket.status} />
+                   <span className={cn('text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800', PRIORITY_CONFIG[ticket.priority].color)}>
                     {PRIORITY_CONFIG[ticket.priority].label} Priority
                   </span>
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <Calendar className="w-3.5 h-3.5" />
-                    {formatDate(ticket.created_at)}
-                  </div>
                 </div>
-              </Card>
 
-              {/* Description */}
-              <Card>
-                <div className="flex items-center gap-2 mb-3">
-                  <MessageSquare className="w-4 h-4 text-emerald-500" />
-                  <h2 className="text-sm font-semibold text-gray-700">Description</h2>
-                </div>
-                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
-                  {ticket.description}
-                </p>
-              </Card>
-
-              {/* Technician */}
-              <Card>
-                <div className="flex items-center gap-2 mb-3">
-                  <User className="w-4 h-4 text-emerald-500" />
-                  <h2 className="text-sm font-semibold text-gray-700">Assigned Technician</h2>
-                </div>
-                {ticket.technicians ? (
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold">
-                      {ticket.technicians.name[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{ticket.technicians.name}</p>
-                      <p className="text-xs text-gray-400">{ticket.technicians.specialty}</p>
-                    </div>
+                {/* Description Card */}
+                <Card className="p-0 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/30 flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                    <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Problem Description</h2>
                   </div>
-                ) : (
-                  <p className="text-sm text-gray-400 italic">No technician assigned yet</p>
-                )}
-              </Card>
-
-              {/* Screenshot */}
-              {ticket.image_url && (
-                <Card>
-                  <div className="flex items-center gap-2 mb-3">
-                    <ImageIcon className="w-4 h-4 text-emerald-500" />
-                    <h2 className="text-sm font-semibold text-gray-700">Screenshot</h2>
-                  </div>
-                  <div className="rounded-xl overflow-hidden border border-gray-100">
-                    <img
-                      src={ticket.image_url}
-                      alt="ticket screenshot"
-                      className="w-full object-cover max-h-80"
-                    />
+                  <div className="p-6">
+                    <p className="text-base text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap font-medium tracking-tight">
+                      {ticket.description}
+                    </p>
                   </div>
                 </Card>
-              )}
+
+                {/* Screenshot/Attachment Card */}
+                {ticket.image_url && (
+                  <Card className="p-0 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/30 flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                      <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Visual Evidence</h2>
+                    </div>
+                    <div className="p-6 bg-slate-50 dark:bg-slate-900/50">
+                      <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl">
+                        <img
+                          src={ticket.image_url}
+                          alt="problem screenshot"
+                          className="w-full object-contain max-h-[500px]"
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                )}
+              </div>
+
+              {/* SIDEBAR INFORMATION */}
+              <div className="w-full lg:w-80 flex-shrink-0 space-y-6">
+                {/* Meta Panel (Status/Time) */}
+                <Card className="space-y-5 p-6 shadow-xl shadow-blue-900/5">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Current Status</p>
+                      <div className="flex">
+                        <StatusBadge status={ticket.status} />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Priority Ranking</p>
+                      <div className="flex">
+                         <span className={cn('text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-800/50', PRIORITY_CONFIG[ticket.priority].color)}>
+                          {PRIORITY_CONFIG[ticket.priority].label} Level
+                        </span>
+                      </div>
+                    </div>
+                    <div className="pt-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-700/30 flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Submitted On</p>
+                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{formatDate(ticket.created_at)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Assignment Panel */}
+                <Card className="p-6 shadow-xl shadow-blue-900/5">
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-3 h-3 rounded-full bg-blue-500" />
+                    <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Assigned Specialist</h2>
+                  </div>
+                  {ticket.technicians ? (
+                    <div className="flex items-center gap-4 group">
+                      <div className="w-12 h-12 rounded-full border-2 border-slate-200 dark:border-slate-700 p-0.5 shadow-sm group-hover:border-blue-500/50 transition-colors">
+                        <div className="w-full h-full rounded-full bg-blue-600 flex items-center justify-center text-white text-base font-bold shadow-inner">
+                          {ticket.technicians.name[0].toUpperCase()}
+                        </div>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-tight">{ticket.technicians.name}</p>
+                        <p className="text-xs font-medium text-slate-500 mt-1 truncate">{ticket.technicians.specialty}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 py-2 text-slate-500 italic">
+                       <User className="w-5 h-5 opacity-30" />
+                       <span className="text-sm font-medium">Pending assignment...</span>
+                    </div>
+                  )}
+                </Card>
+              </div>
+
             </div>
           ) : null}
         </div>

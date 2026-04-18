@@ -8,13 +8,13 @@ interface SkeletonProps {
 
 export function Skeleton({ className }: SkeletonProps) {
   return (
-    <div className={cn('animate-pulse rounded-xl bg-gray-100', className)} />
+    <div className={cn('animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700/50', className)} />
   )
 }
 
 export function TicketCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-4 space-y-3">
       <div className="flex items-start justify-between">
         <Skeleton className="h-4 w-2/3" />
         <Skeleton className="h-5 w-16 rounded-full" />
@@ -31,7 +31,7 @@ export function TicketCardSkeleton() {
 
 export function TechnicianCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-4 flex items-center gap-3">
       <Skeleton className="w-12 h-12 rounded-full" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-4 w-1/2" />
