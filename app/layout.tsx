@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
+import Script from 'next/script'
 
 import { SidebarProvider } from '@/lib/context/SidebarContext'
 
@@ -18,11 +19,39 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
+<<<<<<< Updated upstream
     <html lang="en">
       <body className={`${inter.className} bg-slate-950 text-slate-100 antialiased selection:bg-blue-500/30 selection:text-blue-200`}>
         <SidebarProvider>
           {children}
         </SidebarProvider>
+=======
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          id="theme-switcher"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: `
+            (function() {
+              try {
+                var theme = localStorage.getItem('theme');
+                if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            })();
+          ` }}
+        />
+      </head>
+      <body className={`${inter.className} text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-500/30 selection:text-blue-200 transition-colors duration-300`} suppressHydrationWarning>
+        <ThemeProvider>
+          <SidebarProvider>
+            {children}
+          </SidebarProvider>
+        </ThemeProvider>
+>>>>>>> Stashed changes
         <Toaster
           position="top-center"
           toastOptions={{
