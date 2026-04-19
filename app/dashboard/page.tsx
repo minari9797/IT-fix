@@ -92,40 +92,56 @@ export default function DashboardPage() {
         isOpen ? "md:ml-64" : "md:ml-16"
       )}>
         <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
-          {/* Header — desktop only (mobile uses Topbar) */}
-          <div className="flex items-start justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-                Hey, {firstName} 👋
-              </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Here's your support overview</p>
+          {/* Hero Header */}
+          <div className="mb-12">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black text-[10px] uppercase tracking-[0.3em] mb-4">
+                <CheckCircle2 className="w-4 h-4" />
+                Infrastructure Health Nominal
             </div>
-            <Button
-              onClick={() => router.push('/create-ticket')}
-              size="sm"
-              className="hidden md:flex"
-            >
-              <Plus className="w-4 h-4" />
-              New Ticket
-            </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            {[
-              { label: 'Total', value: stats.total, icon: Ticket, color: 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50' },
-              { label: 'Pending', value: stats.pending, icon: Clock, color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-400/10' },
-              { label: 'In Progress', value: stats.inProgress, icon: TrendingUp, color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-400/10' },
-              { label: 'Resolved', value: stats.resolved, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10' },
-            ].map((stat) => (
-              <div key={stat.label} className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5 shadow-sm transition-colors duration-300">
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${stat.color}`}>
-                  <stat.icon className="w-5 h-5" />
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                   <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[0.9]">
+                     Support <span className="text-blue-600">Command.</span>
+                   </h1>
+                   <p className="text-lg text-slate-500 dark:text-slate-400 mt-6 font-medium max-w-xl">
+                     Welcome back, {firstName}. You have <span className="text-slate-900 dark:text-slate-100 font-bold">{stats.pending + stats.inProgress} active requests</span> currently being handled by our elite engineering team.
+                   </p>
                 </div>
-                <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stat.value}</div>
-                <div className="text-xs font-medium text-slate-500 mt-1 uppercase tracking-wider">{stat.label}</div>
-              </div>
-            ))}
+                <Button
+                  onClick={() => router.push('/create-ticket')}
+                  size="lg"
+                  className="shadow-xl shadow-blue-900/20 bg-blue-600 hover:bg-blue-500 py-6 px-8 rounded-2xl"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  New Support Ticket
+                </Button>
+            </div>
+
+            {/* Performance Strip */}
+            <div className="flex flex-wrap items-center gap-8 mt-12 p-8 rounded-[32px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+                <div className="flex flex-col">
+                    <span className="text-3xl font-black text-slate-900 dark:text-slate-100">{stats.total}</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Total Incidents</span>
+                </div>
+                <div className="w-px h-10 bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+                <div className="flex flex-col">
+                    <span className="text-3xl font-black text-blue-600">{stats.inProgress + stats.pending}</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Active Now</span>
+                </div>
+                <div className="w-px h-10 bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+                <div className="flex flex-col">
+                    <span className="text-3xl font-black text-emerald-500">{stats.resolved}</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Resolved</span>
+                </div>
+                <div className="flex-1" />
+                <div className="hidden lg:flex flex-col items-end">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">System SLA</span>
+                    <div className="flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                        <span className="text-sm font-bold text-slate-900 dark:text-slate-100">99.9% Uptime</span>
+                    </div>
+                </div>
+            </div>
           </div>
 
           {/* Filter tabs */}

@@ -46,7 +46,9 @@ create table if not exists public.technicians (
   email text unique not null,
   specialty text not null,
   avatar_url text,
-  available boolean default true not null
+  available boolean default true not null,
+  resolved_count integer default 0,
+  bio text
 );
 
 -- ─────────────────────────────────────────────

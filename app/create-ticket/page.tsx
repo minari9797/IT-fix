@@ -136,15 +136,23 @@ export default function CreateTicketPage() {
         "pb-24 md:pb-8 transition-all duration-300",
         isOpen ? "md:ml-64" : "md:ml-16"
       )}>
-        <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
-
+        <div className="px-4 pt-10 md:px-10 md:pt-16 max-w-7xl mx-auto">
+          
           {/* Page Heading */}
-          <div className="mb-8 hidden md:block">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Create Ticket</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Describe your IT issue and we'll get it sorted</p>
+          <div className="mb-12">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black text-[10px] uppercase tracking-[0.3em] mb-4">
+                <PlusCircle className="w-4 h-4" />
+                Service Intake Protocol
+            </div>
+            <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[0.9]">
+              New Support <span className="text-blue-600">Incident.</span>
+            </h1>
+            <p className="text-lg text-slate-500 dark:text-slate-400 mt-6 font-medium max-w-2xl leading-relaxed">
+              Describe your technical challenge with precision. Our engineering team will analyze the incident and route it to the optimal specialist.
+            </p>
           </div>
 
-          <div className="flex flex-col lg:flex-row lg:items-start gap-10">
+          <div className="flex flex-col lg:flex-row lg:items-start gap-12">
 
             {/* Form Section */}
             <div className="w-full lg:max-w-xl">
@@ -209,7 +217,7 @@ export default function CreateTicketPage() {
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Technical Assignment</label>
                   <div className="relative group">
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center">
-                      <Briefcase className={cn("w-4 h-4 transition-colors", selectedTechId ? "text-amber-500" : "text-slate-500")} />
+                      <Briefcase className={cn("w-4 h-4 transition-colors", selectedTechId ? "text-blue-500" : "text-slate-500")} />
                     </div>
                     <select
                       value={selectedTechId || ''}
@@ -217,7 +225,7 @@ export default function CreateTicketPage() {
                       className={cn(
                         "w-full appearance-none rounded-xl border bg-white dark:bg-slate-800 pl-11 pr-10 py-4 text-slate-900 dark:text-slate-100 text-sm font-bold tracking-tight",
                         "transition-all duration-200 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-sm",
-                        selectedTechId ? "border-amber-500/50" : "border-slate-300 dark:border-slate-700"
+                        selectedTechId ? "border-blue-500/50" : "border-slate-300 dark:border-slate-700"
                       )}
                     >
                       <option value="">Any Available Technician (Recommended)</option>
@@ -232,7 +240,7 @@ export default function CreateTicketPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 ml-1 mt-1">
-                    <div className={cn("w-1.5 h-1.5 rounded-full", selectedTechId ? "bg-amber-500 animate-pulse" : "bg-blue-500")} />
+                    <div className={cn("w-1.5 h-1.5 rounded-full", selectedTechId ? "bg-blue-500 animate-pulse" : "bg-blue-400")} />
                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                       {selectedTechId ? "Direct Specialist assignment" : "Intelligent auto-routing enabled"}
                     </p>
