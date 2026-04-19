@@ -2,9 +2,9 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { FileText, AlignLeft, AlertCircle, Image as ImageIcon, X, Upload, ChevronDown, PlusCircle } from 'lucide-react'
+import { FileText, AlignLeft, AlertCircle, Image as ImageIcon, X, Upload, ChevronDown, PlusCircle, User as UserIcon, Briefcase } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
@@ -34,8 +34,24 @@ export default function CreateTicketPage() {
   const [image, setImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [technicians, setTechnicians] = useState<any[]>([])
+  const [selectedTechId, setSelectedTechId] = useState<string | null>(null)
+  const [loadingTechs, setLoadingTechs] = useState(true)
   const [errors, setErrors] = useState<{ title?: string; description?: string }>({})
   const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    async function fetchTechnicians() {
+      const { data } = await supabase
+        .from('technicians')
+        .select('id, name, specialty, available')
+        .eq('available', true)
+      
+      setTechnicians(data || [])
+      setLoadingTechs(false)
+    }
+    fetchTechnicians()
+  }, [])
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -94,10 +110,10 @@ export default function CreateTicketPage() {
       title: title.trim(),
       description: description.trim(),
       priority,
-      status: 'pending',
+      status: selectedTechId ? 'in_progress' : 'pending',
       user_id: user.id,
       image_url: imageUrl,
-      technician_id: null,
+      technician_id: selectedTechId,
     })
 
     setLoading(false)
@@ -185,6 +201,41 @@ export default function CreateTicketPage() {
                         <span className={priority === p.value ? 'text-blue-400' : p.color}>{p.label}</span>
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Technician Selection */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Technical Assignment</label>
+                  <div className="relative group">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center">
+                      <Briefcase className={cn("w-4 h-4 transition-colors", selectedTechId ? "text-amber-500" : "text-slate-500")} />
+                    </div>
+                    <select
+                      value={selectedTechId || ''}
+                      onChange={(e) => setSelectedTechId(e.target.value || null)}
+                      className={cn(
+                        "w-full appearance-none rounded-xl border bg-white dark:bg-slate-800 pl-11 pr-10 py-4 text-slate-900 dark:text-slate-100 text-sm font-bold tracking-tight",
+                        "transition-all duration-200 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-sm",
+                        selectedTechId ? "border-amber-500/50" : "border-slate-300 dark:border-slate-700"
+                      )}
+                    >
+                      <option value="">Any Available Technician (Recommended)</option>
+                      {technicians.map(tech => (
+                        <option key={tech.id} value={tech.id}>
+                          {tech.name} ({tech.specialty})
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <ChevronDown className="w-5 h-5 text-slate-400" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 ml-1 mt-1">
+                    <div className={cn("w-1.5 h-1.5 rounded-full", selectedTechId ? "bg-amber-500 animate-pulse" : "bg-blue-500")} />
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                      {selectedTechId ? "Direct Specialist assignment" : "Intelligent auto-routing enabled"}
+                    </p>
                   </div>
                 </div>
 
