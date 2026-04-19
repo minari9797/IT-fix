@@ -1,0 +1,200 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { 
+  ClipboardList, 
+  Search, 
+  CheckCircle2, 
+  Clock, 
+  Filter
+} from 'lucide-react'
+import toast from 'react-hot-toast'
+import { supabase } from '@/lib/supabase'
+import { useTechnician } from '@/lib/hooks'
+import { useSidebar } from '@/lib/context/SidebarContext'
+import TechnicianTopbar from '@/components/layout/TechnicianTopbar'
+import TechnicianTicketCard from '@/components/TechnicianTicketCard'
+import EmptyState from '@/components/ui/EmptyState'
+import { TicketCardSkeleton } from '@/components/ui/Skeleton'
+import { cn } from '@/lib/utils'
+
+type TicketRow = {
+  id: string
+  title: string
+  description: string
+  status: 'pending' | 'in_progress' | 'resolved'
+  priority: 'low' | 'medium' | 'high'
+  created_at: string
+  image_url: string | null
+  technician_id: string | null
+  profiles: { full_name: string } | null
+}
+
+type Tab = 'active' | 'resolved'
+
+export default function MyTicketsPage() {
+  const { technician, loading: authLoading } = useTechnician()
+  const router = useRouter()
+  const { isOpen } = useSidebar()
+  
+  const [tickets, setTickets] = useState<TicketRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<Tab>('active')
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    if (!authLoading && !technician) router.push('/technician-portal/login')
+  }, [technician, authLoading, router])
+
+  useEffect(() => {
+    if (!technician) return
+    fetchTickets()
+  }, [technician, activeTab])
+
+  const fetchTickets = async () => {
+    setLoading(true)
+    const query = supabase
+      .from('tickets')
+      .select('*, profiles(full_name)')
+      .eq('technician_id', technician.id)
+
+    if (activeTab === 'active') {
+      query.neq('status', 'resolved')
+    } else {
+      query.eq('status', 'resolved')
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false })
+
+    if (error) toast.error('Failed to load your tickets')
+    else setTickets((data as any) || [])
+    setLoading(false)
+  }
+
+  const resolveTicket = async (id: string) => {
+    const { error } = await supabase
+      .from('tickets')
+      .update({ status: 'resolved' })
+      .eq('id', id)
+
+    if (error) {
+      toast.error('Failed to resolve ticket')
+    } else {
+      toast.success('Ticket marked as resolved')
+      fetchTickets()
+    }
+  }
+
+  const filtered = tickets.filter(t => 
+    t.title.toLowerCase().includes(search.toLowerCase()) ||
+    t.description.toLowerCase().includes(search.toLowerCase())
+  )
+
+  if (authLoading || !technician) return null
+
+  return (
+    <div className="min-h-screen uppercase-first">
+      <TechnicianTopbar title="My Tickets" />
+
+      <main className={cn(
+        "pb-24 md:pb-8 transition-all duration-300",
+        isOpen ? "md:ml-64" : "md:ml-16"
+      )}>
+        <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
+          
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+              My Assigned Workload
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium italic">
+              Management of your active and historical support assignments
+            </p>
+          </div>
+
+          {/* Search & Tabs */}
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
+             <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input
+                    type="text"
+                    placeholder="Search assigned tickets..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 shadow-sm"
+                />
+             </div>
+             <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm self-start">
+                {[
+                    { id: 'active', label: 'In Progress', icon: Clock },
+                    { id: 'resolved', label: 'Post-Mortem', icon: CheckCircle2 }
+                ].map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as Tab)}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all",
+                            activeTab === tab.id 
+                                ? "bg-amber-500 text-white shadow-lg shadow-amber-900/20" 
+                                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+                        )}
+                    >
+                        <tab.icon className="w-3.5 h-3.5" />
+                        {tab.label}
+                    </button>
+                ))}
+             </div>
+          </div>
+
+          {/* Ticket Stats Strip */}
+          <div className="flex gap-4 mb-6">
+             <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-inner">
+                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">
+                    {tickets.length} {activeTab === 'active' ? 'Active Tasks' : 'Resolved Records'}
+                </span>
+             </div>
+          </div>
+
+          {/* Ticket List */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => <TicketCardSkeleton key={i} />)
+            ) : filtered.length === 0 ? (
+                <div className="lg:col-span-2">
+                    <EmptyState
+                    icon={<ClipboardList className="w-8 h-8" />}
+                    title={activeTab === 'active' ? "Clean Slate!" : "No History"}
+                    description={
+                        search 
+                            ? `No tickets match "${search}"`
+                            : activeTab === 'active' 
+                                ? "You don't have any tickets assigned to you at the moment."
+                                : "You haven't resolved any tickets yet."
+                    }
+                    />
+                </div>
+            ) : (
+              filtered.map((ticket, i) => (
+                <div
+                  key={ticket.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  <TechnicianTicketCard 
+                    ticket={ticket} 
+                    onAction={activeTab === 'active' ? resolveTicket : undefined}
+                    actionLabel="Resolve"
+                    actionIcon={<CheckCircle2 className="w-3 h-3" />}
+                    variant="amber"
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
