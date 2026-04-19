@@ -42,7 +42,7 @@ export default function TechnicianTicketCard({
   }
 
   return (
-    <Card hover onClick={() => router.push(`/tickets/${ticket.id}`)} className="group">
+    <Card hover onClick={() => router.push(`/technician-portal/tickets/${ticket.id}`)} className="group">
       <div className="flex gap-4">
         {/* Image preview */}
         {ticket.image_url ? (

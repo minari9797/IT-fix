@@ -7,7 +7,8 @@ import {
   Search, 
   CheckCircle2, 
   Clock, 
-  Filter
+  Filter,
+  Coffee
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
@@ -164,15 +165,16 @@ export default function MyTicketsPage() {
             ) : filtered.length === 0 ? (
                 <div className="lg:col-span-2">
                     <EmptyState
-                    icon={<ClipboardList className="w-8 h-8" />}
-                    title={activeTab === 'active' ? "Clean Slate!" : "No History"}
+                    icon={<Coffee className="w-8 h-8" />}
+                    title={activeTab === 'active' ? "Pause Café !" : "Aucun historique"}
                     description={
                         search 
-                            ? `No tickets match "${search}"`
+                            ? `Aucun ticket pour "${search}"`
                             : activeTab === 'active' 
-                                ? "You don't have any tickets assigned to you at the moment."
-                                : "You haven't resolved any tickets yet."
+                                ? "Votre file d'attente est vide. Prenez un moment pour respirer."
+                                : "Vous n'avez pas encore de tickets résolus."
                     }
+                    className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800"
                     />
                 </div>
             ) : (

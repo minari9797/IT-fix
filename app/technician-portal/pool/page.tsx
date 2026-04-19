@@ -7,7 +7,8 @@ import {
   Search, 
   ArrowRight,
   Zap,
-  Filter
+  Filter,
+  Server
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
@@ -160,12 +161,12 @@ export default function OpenPoolPage() {
             ) : filtered.length === 0 ? (
                 <div className="lg:col-span-2">
                     <EmptyState
-                    icon={<Inbox className="w-8 h-8" />}
-                    title="Pool Exhausted"
+                    icon={<Server className="w-8 h-8" />}
+                    title="Pool Clean"
                     description={
                         search 
-                            ? `No unassigned tickets match "${search}"`
-                            : "There are currently no unassigned tickets available."
+                            ? `Aucun résultat pour "${search}"`
+                            : "Aucun ticket en attente. L'équipe gère !"
                     }
                     action={
                         search ? (

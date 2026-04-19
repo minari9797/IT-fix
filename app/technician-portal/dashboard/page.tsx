@@ -9,14 +9,16 @@ import {
   CheckCircle2, 
   ArrowRight,
   TrendingUp,
-  Inbox
+  Inbox,
+  Coffee,
+  Server
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useTechnician } from '@/lib/hooks'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import TechnicianTopbar from '@/components/layout/TechnicianTopbar'
-import TicketCard from '@/components/TicketCard'
+import TechnicianTicketCard from '@/components/TechnicianTicketCard'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import EmptyState from '@/components/ui/EmptyState'
@@ -181,12 +183,15 @@ export default function TechnicianDashboard() {
                     {loading ? (
                         Array.from({ length: 2 }).map((_, i) => <TicketCardSkeleton key={i} />)
                     ) : myTickets.length === 0 ? (
-                        <Card className="flex flex-col items-center justify-center py-10 border-dashed bg-slate-50/50 dark:bg-slate-800/20">
-                            <p className="text-sm text-slate-400 font-medium">Your queue is empty</p>
-                        </Card>
+                        <EmptyState
+                            icon={<Coffee className="w-8 h-8" />}
+                            title="Pause Café !"
+                            description="Votre file d'attente est vide. Prenez un moment pour respirer."
+                            className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800"
+                        />
                     ) : (
                         myTickets.map(ticket => (
-                            <TicketCard key={ticket.id} ticket={ticket} />
+                            <TechnicianTicketCard key={ticket.id} ticket={ticket as any} />
                         ))
                     )}
                 </div>
@@ -205,12 +210,19 @@ export default function TechnicianDashboard() {
                     {loading ? (
                         Array.from({ length: 2 }).map((_, i) => <TicketCardSkeleton key={i} />)
                     ) : poolTickets.length === 0 ? (
-                        <Card className="flex flex-col items-center justify-center py-10 border-dashed bg-slate-50/50 dark:bg-slate-800/20">
-                            <p className="text-sm text-slate-400 font-medium">No new unassigned tickets</p>
-                        </Card>
+                        <EmptyState
+                            icon={<Server className="w-8 h-8" />}
+                            title="Pool Clean"
+                            description="Aucun ticket en attente. L'équipe gère !"
+                            className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800"
+                        />
                     ) : (
                         poolTickets.map(ticket => (
-                            <Card key={ticket.id} className="relative group overflow-hidden border-amber-500/10 hover:border-amber-500/30 transition-all">
+                            <Card 
+                                key={ticket.id} 
+                                onClick={() => router.push(`/technician-portal/tickets/${ticket.id}`)}
+                                className="relative group overflow-hidden border-amber-500/10 hover:border-amber-500/30 transition-all cursor-pointer"
+                            >
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
