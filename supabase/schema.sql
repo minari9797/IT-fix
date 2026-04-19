@@ -64,7 +64,9 @@ create table if not exists public.tickets (
   priority ticket_priority default 'medium' not null,
   user_id uuid references auth.users(id) on delete cascade not null,
   technician_id uuid references public.technicians(id) on delete set null,
-  image_url text
+  image_url text,
+  internal_notes text,
+  resolution_summary text
 );
 
 -- Indexes for performance
@@ -111,7 +113,8 @@ create policy "Users can view own tickets or admins can view all"
   on public.tickets for select
   using (
     auth.uid() = user_id or 
-    exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
+    exists (select 1 from public.profiles where id = auth.uid() and is_admin = true) or
+    exists (select 1 from public.technicians where email = auth.jwt() ->> 'email')
   );
 
 create policy "Users can create own tickets"
@@ -123,6 +126,16 @@ create policy "Users can update own tickets or admins can update all"
   using (
     auth.uid() = user_id or 
     exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
+  );
+
+create policy "Technicians can update assigned tickets"
+  on public.tickets for update
+  using (
+    exists (
+      select 1 from public.technicians 
+      where email = auth.jwt() ->> 'email' 
+      and id = technician_id
+    )
   );
 
 create policy "Admins can delete tickets"
