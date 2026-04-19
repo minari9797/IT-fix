@@ -100,6 +100,12 @@ create policy "Admins can manage technicians"
   on public.technicians for all
   using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
 
+create policy "Technicians can update own availability"
+  on public.technicians for update
+  to authenticated
+  using (email = auth.jwt() ->> 'email')
+  with check (email = auth.jwt() ->> 'email');
+
 -- TICKETS policies
 create policy "Users can view own tickets or admins can view all"
   on public.tickets for select
