@@ -80,8 +80,30 @@ export default function TechnicianDashboard() {
 
       if (poolError || myError) throw new Error('Failed to fetch tickets')
 
-      setPoolTickets(poolData || [])
-      setMyTickets(myData || [])
+      const allTickets = [...(poolData || []), ...(myData || [])]
+      const userIds = Array.from(new Set(allTickets.map(t => t.user_id)))
+
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds)
+        
+        if (profiles) {
+          const mapProfiles = (t: any) => ({
+            ...t,
+            profiles: profiles.find(p => p.id === t.user_id) || null
+          })
+          setPoolTickets((poolData || []).map(mapProfiles))
+          setMyTickets((myData || []).map(mapProfiles))
+        } else {
+          setPoolTickets(poolData || [])
+          setMyTickets(myData || [])
+        }
+      } else {
+        setPoolTickets(poolData || [])
+        setMyTickets(myData || [])
+      }
     } catch (err) {
       toast.error('Error loading command center')
     } finally {

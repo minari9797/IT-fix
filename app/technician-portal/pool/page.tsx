@@ -53,16 +53,43 @@ export default function OpenPoolPage() {
 
   const fetchPool = async () => {
     setLoading(true)
-    const { data, error } = await supabase
-      .from('tickets')
-      .select('*, profiles(full_name)')
-      .is('technician_id', null)
-      .eq('status', 'pending')
-      .order('created_at', { ascending: false })
+    try {
+      const { data: ticketData, error } = await supabase
+        .from('tickets')
+        .select('*')
+        .is('technician_id', null)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
 
-    if (error) toast.error('Failed to load ticket pool')
-    else setTickets((data as any) || [])
-    setLoading(false)
+      if (error) {
+        toast.error('Failed to access global ticket pool')
+        setLoading(false)
+        return
+      }
+
+      const ticketsWithProfiles = [...(ticketData || [])]
+      
+      // Fetch profile info manually
+      const userIds = Array.from(new Set(ticketsWithProfiles.map(t => t.user_id)))
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds)
+        
+        if (profiles) {
+          ticketsWithProfiles.forEach(t => {
+            t.profiles = profiles.find(p => p.id === t.user_id) || null
+          })
+        }
+      }
+
+      setTickets(ticketsWithProfiles as any)
+    } catch (err) {
+      toast.error('Global sync interrupted')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const claimTicket = async (id: string) => {

@@ -55,22 +55,49 @@ export default function MyTicketsPage() {
 
   const fetchTickets = async () => {
     setLoading(true)
-    const query = supabase
-      .from('tickets')
-      .select('*, profiles(full_name)')
-      .eq('technician_id', technician.id)
+    try {
+      const query = supabase
+        .from('tickets')
+        .select('*')
+        .eq('technician_id', technician.id)
 
-    if (activeTab === 'active') {
-      query.neq('status', 'resolved')
-    } else {
-      query.eq('status', 'resolved')
+      if (activeTab === 'active') {
+        query.neq('status', 'resolved')
+      } else {
+        query.eq('status', 'resolved')
+      }
+
+      const { data: ticketData, error } = await query.order('created_at', { ascending: false })
+
+      if (error) {
+        toast.error('Failed to load system workload')
+        setLoading(false)
+        return
+      }
+
+      const ticketsWithProfiles = [...(ticketData || [])]
+      
+      // Fetch profile info for each ticket manually to avoid join failures
+      const userIds = Array.from(new Set(ticketsWithProfiles.map(t => t.user_id)))
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds)
+        
+        if (profiles) {
+          ticketsWithProfiles.forEach(t => {
+            t.profiles = profiles.find(p => p.id === t.user_id) || null
+          })
+        }
+      }
+
+      setTickets(ticketsWithProfiles as any)
+    } catch (err) {
+      toast.error('Network error during data sync')
+    } finally {
+      setLoading(false)
     }
-
-    const { data, error } = await query.order('created_at', { ascending: false })
-
-    if (error) toast.error('Failed to load your tickets')
-    else setTickets((data as any) || [])
-    setLoading(false)
   }
 
   const resolveTicket = async (id: string) => {
