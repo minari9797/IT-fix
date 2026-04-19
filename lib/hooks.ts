@@ -40,3 +40,40 @@ export function useUser() {
 
   return { user, isAdmin, loading }
 }
+
+export function useTechnician() {
+  const [user, setUser] = useState<User | null>(null)
+  const [technician, setTechnician] = useState<any | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function getTechnicianProfile(email: string) {
+      const { data } = await supabase
+        .from('technicians')
+        .select('*')
+        .eq('email', email)
+        .single()
+      setTechnician(data || null)
+    }
+
+    supabase.auth.getUser().then(async ({ data }) => {
+      setUser(data.user)
+      if (data.user?.email) {
+        await getTechnicianProfile(data.user.email)
+      }
+      setLoading(false)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      if (session?.user?.email) getTechnicianProfile(session.user.email)
+      else setTechnician(null)
+    })
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
+  }, [])
+
+  return { user, technician, loading }
+}
