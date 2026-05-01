@@ -270,12 +270,11 @@ export default function TechnicianTicketDetail() {
                             <h3 className="text-[10px] font-black text-amber-700 dark:text-amber-500 uppercase tracking-widest">Work Logs & System Notes</h3>
                         </div>
                         <button 
-                            onClick={() => handleUpdate({ internal_notes: internalNotes, resolution_summary: resolutionSummary })}
+                            onClick={() => handleUpdate({ status: 'resolved' })} 
                             disabled={saving}
-                            className="text-[10px] font-black text-amber-600 hover:text-amber-700 uppercase tracking-widest flex items-center gap-1.5 transition-colors"
+                            className="text-[10px] font-black text-amber-600 hover:text-amber-800"
                         >
-                            <Save className="w-3 h-3" />
-                            {saving ? 'Syncing...' : 'Sync Logs'}
+                            Valider le changement
                         </button>
                     </div>
                     <div className="p-8 space-y-6">
