@@ -8,7 +8,6 @@ import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
-import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
 import TechnicianCard from '@/components/TechnicianCard'
 import EmptyState from '@/components/ui/EmptyState'
@@ -57,7 +56,7 @@ export default function TechniciansPage() {
 
       <main className={cn(
         "pb-24 md:pb-8 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-16"
+        isOpen ? "md:ml-72" : "md:ml-20"
       )}>
         <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
           {/* Header */}
@@ -80,7 +79,7 @@ export default function TechniciansPage() {
 
           {/* Stats counts */}
           {!loading && (
-            <div className="flex gap-2.5 mb-6">
+            <div className="flex flex-wrap gap-2.5 mb-6">
               <span className="text-xs font-bold px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 dark:text-slate-400 uppercase tracking-widest shadow-sm">
                 {technicians.length} Team Members
               </span>
@@ -91,7 +90,7 @@ export default function TechniciansPage() {
           )}
 
           {/* Technicians grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => <TechnicianCardSkeleton key={i} />)
             ) : filtered.length === 0 ? (
@@ -121,7 +120,7 @@ export default function TechniciansPage() {
         </div>
       </main>
 
-      <MobileNav />
+
     </div>
   )
 }

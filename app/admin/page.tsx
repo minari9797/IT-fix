@@ -20,7 +20,6 @@ import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
-import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
 import Card from '@/components/ui/Card'
 import StatusBadge from '@/components/ui/StatusBadge'
@@ -134,7 +133,7 @@ export default function AdminPage() {
 
       <main className={cn(
         "pb-24 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-16"
+        isOpen ? "md:ml-72" : "md:ml-20"
       )}>
         <div className="px-4 pt-4 md:px-10 md:pt-10 max-w-7xl">
           
@@ -265,7 +264,7 @@ export default function AdminPage() {
         </div>
       </main>
 
-      <MobileNav />
+
     </div>
   )
 }

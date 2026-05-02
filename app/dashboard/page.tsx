@@ -10,7 +10,6 @@ import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
-import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
 import TicketCard from '@/components/TicketCard'
 import Button from '@/components/ui/Button'
@@ -89,7 +88,7 @@ export default function DashboardPage() {
 
       <main className={cn(
         "pb-24 md:pb-8 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-16"
+        isOpen ? "md:ml-72" : "md:ml-20"
       )}>
         <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
           {/* Header — desktop only (mobile uses Topbar) */}
@@ -192,7 +191,7 @@ export default function DashboardPage() {
         <Plus className="w-6 h-6" />
       </button>
 
-      <MobileNav />
+
     </div>
   )
 }

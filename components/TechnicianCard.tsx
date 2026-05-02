@@ -50,7 +50,7 @@ export default function TechnicianCard({ technician }: TechnicianCardProps) {
     <div
       className={cn(
         'relative group bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700',
-        'shadow-sm p-6 transition-all duration-300 cursor-default overflow-hidden',
+        'shadow-sm p-5 sm:p-6 transition-all duration-300 cursor-default overflow-hidden',
         'hover:shadow-xl hover:shadow-blue-900/10 dark:hover:shadow-blue-500/5',
         'hover:border-slate-300 dark:hover:border-slate-600',
         'hover:-translate-y-1'
@@ -60,7 +60,7 @@ export default function TechnicianCard({ technician }: TechnicianCardProps) {
       <div className={cn('absolute top-0 left-0 right-0 h-1 rounded-t-xl transition-all duration-300', accent, 'opacity-60 group-hover:opacity-100')} />
 
       {/* Header: Avatar + Name + Availability */}
-      <div className="flex items-start gap-4 mb-5">
+      <div className="flex items-start gap-3 sm:gap-4 mb-5">
         {/* Avatar */}
         {technician.avatar_url ? (
           <img
@@ -81,8 +81,8 @@ export default function TechnicianCard({ technician }: TechnicianCardProps) {
           </div>
         )}
 
-        <div className="flex-1 min-w-0">
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+        <div className="flex-1 min-w-0 flex flex-wrap gap-2.5">
+          <h3 className="w-full text-base font-bold text-slate-900 dark:text-slate-100 truncate tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
             {technician.name}
           </h3>
           {/* Availability Badge */}

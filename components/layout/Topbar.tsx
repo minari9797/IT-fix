@@ -30,14 +30,7 @@ export default function Topbar({ title }: TopbarProps) {
             <span className="text-base font-bold text-slate-900 dark:text-slate-100">{title || 'IT-Fix'}</span>
           </div>
         </div>
-        <button
-          id="topbar-notifications-btn"
-          aria-label="Notifications"
-          className="relative w-9 h-9 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-        >
-          <Bell className="w-[18px] h-[18px]" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-blue-500" />
-        </button>
+        {/* Notifications button removed */}
       </div>
     </header>
   )

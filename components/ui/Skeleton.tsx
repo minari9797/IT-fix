@@ -31,7 +31,7 @@ export function TicketCardSkeleton() {
 
 export function TechnicianCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 relative overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 sm:p-6 relative overflow-hidden">
       {/* Accent bar */}
       <Skeleton className="absolute top-0 left-0 right-0 h-1 rounded-none rounded-t-xl" />
 

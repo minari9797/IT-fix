@@ -9,7 +9,6 @@ import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
-import MobileNav from '@/components/layout/MobileNav'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Card from '@/components/ui/Card'
 import { PRIORITY_CONFIG, formatDate, cn } from '@/lib/utils'
@@ -71,7 +70,7 @@ export default function TicketDetailPage() {
 
       <main className={cn(
         "pb-24 md:pb-8 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-16"
+        isOpen ? "md:ml-72" : "md:ml-20"
       )}>
         <div className="px-4 pt-4 md:px-10 md:pt-10 max-w-7xl">
           {/* Desktop Navigation Row */}
@@ -216,7 +215,7 @@ export default function TicketDetailPage() {
         </div>
       </main>
 
-      <MobileNav />
+
     </div>
   )
 }
