@@ -2,9 +2,9 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { FileText, AlignLeft, AlertCircle, Image as ImageIcon, X, Upload, ChevronDown, PlusCircle } from 'lucide-react'
+import { FileText, AlignLeft, AlertCircle, Image as ImageIcon, X, Upload, ChevronDown, PlusCircle, Wrench, CheckCircle, Search, UserCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
@@ -23,6 +23,31 @@ const PRIORITIES = [
   { value: 'high', label: 'High', color: 'text-red-400' },
 ]
 
+type Technician = {
+  id: string
+  name: string
+  specialty: string
+  available: boolean
+  avatar_url: string | null
+}
+
+const AVATAR_COLORS = [
+  'from-emerald-400 to-teal-500',
+  'from-blue-400 to-indigo-500',
+  'from-purple-400 to-pink-500',
+  'from-orange-400 to-red-500',
+  'from-yellow-400 to-orange-500',
+]
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
 export default function CreateTicketPage() {
   const { user } = useUser()
   const { isOpen } = useSidebar()
@@ -36,6 +61,34 @@ export default function CreateTicketPage() {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<{ title?: string; description?: string }>({})
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const [technicians, setTechnicians] = useState<Technician[]>([])
+  const [selectedTechnicianId, setSelectedTechnicianId] = useState<string | null>(null)
+  const [techSearch, setTechSearch] = useState('')
+  const [techLoading, setTechLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) return
+    const fetchTechnicians = async () => {
+      setTechLoading(true)
+      const { data, error } = await supabase
+        .from('technicians')
+        .select('*')
+        .order('name')
+      if (error) {
+        console.error('Failed to fetch technicians:', error)
+      } else {
+        setTechnicians(data || [])
+      }
+      setTechLoading(false)
+    }
+    fetchTechnicians()
+  }, [user])
+
+  const filteredTechnicians = technicians.filter((t) =>
+    t.name.toLowerCase().includes(techSearch.toLowerCase()) ||
+    t.specialty.toLowerCase().includes(techSearch.toLowerCase())
+  )
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -97,7 +150,7 @@ export default function CreateTicketPage() {
       status: 'pending',
       user_id: user.id,
       image_url: imageUrl,
-      technician_id: null,
+      technician_id: selectedTechnicianId,
     })
 
     setLoading(false)
@@ -186,6 +239,154 @@ export default function CreateTicketPage() {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Technician Selection */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                    <UserCheck className="w-4 h-4 text-blue-500" />
+                    Assign Technician
+                    <span className="text-slate-500 font-normal ml-1">(Optional)</span>
+                  </label>
+
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Search by name or specialty..."
+                      value={techSearch}
+                      onChange={(e) => setTechSearch(e.target.value)}
+                      className={cn(
+                        "w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-11 pr-4 py-3 text-sm text-slate-900 dark:text-slate-100",
+                        "placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all duration-200",
+                        "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      )}
+                    />
+                  </div>
+
+                  {/* Technician List */}
+                  <div className="max-h-[280px] overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 divide-y divide-slate-200 dark:divide-slate-700/50 scrollbar-none">
+                    {techLoading ? (
+                      <div className="flex flex-col gap-3 p-4">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="flex items-center gap-3 animate-pulse">
+                            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700" />
+                            <div className="flex-1 space-y-2">
+                              <div className="h-3 w-24 bg-slate-200 dark:bg-slate-700 rounded" />
+                              <div className="h-2.5 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : filteredTechnicians.length === 0 ? (
+                      <div className="py-8 text-center">
+                        <Wrench className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">No technicians found</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Try adjusting your search</p>
+                      </div>
+                    ) : (
+                      filteredTechnicians.map((tech) => {
+                        const isSelected = selectedTechnicianId === tech.id
+                        const colorIdx = tech.name.charCodeAt(0) % AVATAR_COLORS.length
+                        const gradient = AVATAR_COLORS[colorIdx]
+
+                        return (
+                          <button
+                            key={tech.id}
+                            type="button"
+                            onClick={() => setSelectedTechnicianId(isSelected ? null : tech.id)}
+                            className={cn(
+                              "w-full flex items-center gap-3 px-4 py-3.5 text-left transition-all duration-200 group",
+                              isSelected
+                                ? "bg-blue-50 dark:bg-blue-500/10"
+                                : "hover:bg-white dark:hover:bg-slate-800"
+                            )}
+                          >
+                            {/* Avatar */}
+                            <div className="relative flex-shrink-0">
+                              {tech.avatar_url ? (
+                                <img
+                                  src={tech.avatar_url}
+                                  alt={tech.name}
+                                  className={cn(
+                                    "w-10 h-10 rounded-full object-cover",
+                                    isSelected && "ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-800"
+                                  )}
+                                />
+                              ) : (
+                                <div
+                                  className={cn(
+                                    'w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br text-white text-xs font-bold',
+                                    gradient,
+                                    isSelected && 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-800'
+                                  )}
+                                >
+                                  {getInitials(tech.name)}
+                                </div>
+                              )}
+                              {isSelected && (
+                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm">
+                                  <CheckCircle className="w-3 h-3" />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Info */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className={cn(
+                                  "text-sm font-semibold truncate",
+                                  isSelected
+                                    ? "text-blue-700 dark:text-blue-300"
+                                    : "text-slate-800 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-slate-100"
+                                )}>
+                                  {tech.name}
+                                </p>
+                                <span className={cn(
+                                  "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0",
+                                  tech.available
+                                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                    : "bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400"
+                                )}>
+                                  <span className={cn(
+                                    "w-1.5 h-1.5 rounded-full",
+                                    tech.available ? "bg-emerald-500" : "bg-slate-400"
+                                  )} />
+                                  {tech.available ? "Available" : "Busy"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <Wrench className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+                                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{tech.specialty}</span>
+                              </div>
+                            </div>
+
+                            {/* Selection indicator */}
+                            <div className={cn(
+                              "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200",
+                              isSelected
+                                ? "border-blue-600 bg-blue-600"
+                                : "border-slate-300 dark:border-slate-600 group-hover:border-blue-400 dark:group-hover:border-blue-500"
+                            )}>
+                              {isSelected && (
+                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </div>
+                          </button>
+                        )
+                      })
+                    )}
+                  </div>
+
+                  {selectedTechnicianId && (
+                    <p className="text-xs font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1 mt-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Technician selected — they'll be notified when you submit
+                    </p>
+                  )}
                 </div>
 
                 {/* Image Upload Area */}

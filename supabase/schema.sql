@@ -93,9 +93,9 @@ create policy "Users can update own profile"
   using (auth.uid() = id);
 
 -- TECHNICIANS policies
-create policy "Anyone authenticated can view technicians"
+create policy "Anyone can view technicians"
   on public.technicians for select
-  to authenticated
+  to anon, authenticated
   using (true);
 
 create policy "Admins can manage technicians"
