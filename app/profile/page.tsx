@@ -34,7 +34,7 @@ export default function ProfilePage() {
       .then(({ data }) => {
         if (data) {
           setTicketStats({
-            total: data.length,
+            total: data.filter((t) => t.status !== 'cancelled' && t.status !== 'archived').length,
             resolved: data.filter((t) => t.status === 'resolved').length,
             pending: data.filter((t) => t.status === 'pending').length,
           })

@@ -4,7 +4,7 @@ import { STATUS_CONFIG } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 interface StatusBadgeProps {
-  status: 'pending' | 'in_progress' | 'resolved'
+  status: 'pending' | 'in_progress' | 'resolved' | 'cancelled' | 'archived'
   size?: 'sm' | 'md'
 }
 

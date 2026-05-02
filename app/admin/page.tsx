@@ -29,7 +29,7 @@ import { PRIORITY_CONFIG, formatDate, cn } from '@/lib/utils'
 type TicketWithUser = {
   id: string
   title: string
-  status: 'pending' | 'in_progress' | 'resolved'
+  status: 'pending' | 'in_progress' | 'resolved' | 'cancelled' | 'archived'
   priority: 'low' | 'medium' | 'high'
   created_at: string
   user_id: string
@@ -220,6 +220,8 @@ export default function AdminPage() {
                               <option value="pending">Mark Pending</option>
                               <option value="in_progress">Mark In Progress</option>
                               <option value="resolved">Mark Resolved</option>
+                              <option value="cancelled">Mark Cancelled</option>
+                              <option value="archived">Mark Archived</option>
                             </select>
                           </div>
                         </td>

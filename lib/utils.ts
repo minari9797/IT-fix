@@ -37,6 +37,16 @@ export const STATUS_CONFIG = {
     color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     dot: 'bg-emerald-400',
   },
+  cancelled: {
+    label: 'Cancelled',
+    color: 'bg-red-500/10 text-red-400 border-red-500/20',
+    dot: 'bg-red-400',
+  },
+  archived: {
+    label: 'Archived',
+    color: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+    dot: 'bg-slate-400',
+  },
 } as const
 
 export const PRIORITY_CONFIG = {

@@ -21,7 +21,7 @@ type TicketRow = {
   id: string
   title: string
   description: string
-  status: 'pending' | 'in_progress' | 'resolved'
+  status: 'pending' | 'in_progress' | 'resolved' | 'cancelled' | 'archived'
   priority: 'low' | 'medium' | 'high'
   created_at: string
   image_url: string | null
@@ -29,13 +29,15 @@ type TicketRow = {
   technicians?: { name: string } | null
 }
 
-type FilterStatus = 'all' | 'pending' | 'in_progress' | 'resolved'
+type FilterStatus = 'all' | 'pending' | 'in_progress' | 'resolved' | 'cancelled' | 'archived'
 
 const FILTERS: { label: string; value: FilterStatus }[] = [
   { label: 'All', value: 'all' },
   { label: 'Pending', value: 'pending' },
   { label: 'In Progress', value: 'in_progress' },
   { label: 'Resolved', value: 'resolved' },
+  { label: 'Cancelled', value: 'cancelled' },
+  { label: 'Archived', value: 'archived' },
 ]
 
 export default function DashboardPage() {
@@ -66,10 +68,11 @@ export default function DashboardPage() {
     setLoading(false)
   }
 
-  const filtered = filter === 'all' ? tickets : tickets.filter((t) => t.status === filter)
+  const activeTickets = tickets.filter(t => t.status !== 'cancelled' && t.status !== 'archived')
+  const filtered = filter === 'all' ? activeTickets : tickets.filter((t) => t.status === filter)
 
   const stats = {
-    total: tickets.length,
+    total: activeTickets.length,
     pending: tickets.filter((t) => t.status === 'pending').length,
     inProgress: tickets.filter((t) => t.status === 'in_progress').length,
     resolved: tickets.filter((t) => t.status === 'resolved').length,

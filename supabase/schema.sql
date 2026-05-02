@@ -52,7 +52,7 @@ create table if not exists public.technicians (
 -- ─────────────────────────────────────────────
 -- 3. TICKETS TABLE
 -- ─────────────────────────────────────────────
-create type ticket_status as enum ('pending', 'in_progress', 'resolved');
+create type ticket_status as enum ('pending', 'in_progress', 'resolved', 'cancelled', 'archived');
 create type ticket_priority as enum ('low', 'medium', 'high');
 
 create table if not exists public.tickets (

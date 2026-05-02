@@ -29,7 +29,7 @@ type TicketRow = {
   id: string
   title: string
   description: string
-  status: 'pending' | 'in_progress' | 'resolved'
+  status: 'pending' | 'in_progress' | 'resolved' | 'cancelled' | 'archived'
   priority: 'low' | 'medium' | 'high'
   created_at: string
   image_url: string | null
