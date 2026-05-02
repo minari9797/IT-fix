@@ -80,7 +80,7 @@ export default function ProfilePage() {
               <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-blue-900/50 mb-4">
                 {initials}
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{fullName}</h1>
+              <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{fullName}</h1>
               <div className="flex items-center gap-1.5 mt-1.5">
                 <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{email}</p>

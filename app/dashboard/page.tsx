@@ -94,7 +94,7 @@ export default function DashboardPage() {
           {/* Header — desktop only (mobile uses Topbar) */}
           <div className="flex items-start justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+              <h1 className="text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                 Hey, {firstName} 👋
               </h1>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Here's your support overview</p>

@@ -144,7 +144,7 @@ export default function AdminPage() {
                 <div className="w-10 h-10 rounded-lg bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-md">
                   <Shield className="w-5 h-5 font-bold" />
                 </div>
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Admin Console</h1>
+                <h1 className="text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Admin Console</h1>
               </div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total control over system requests and team assignments</p>
             </div>

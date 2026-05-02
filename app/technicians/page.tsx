@@ -61,7 +61,7 @@ export default function TechniciansPage() {
         <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
           {/* Header */}
           <div className="mb-8 hidden md:block">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Technicians</h1>
+            <h1 className="text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Technicians</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Meet the team handling your tickets</p>
           </div>
 
