@@ -4,22 +4,22 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, User, Calendar, AlertCircle, Image as ImageIcon, MessageSquare } from 'lucide-react'
+import { ArrowLeft, User, Calendar, AlertCircle, Image as ImageIcon, MessageSquare, Archive, XCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
-import MobileNav from '@/components/layout/MobileNav'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Card from '@/components/ui/Card'
 import { PRIORITY_CONFIG, formatDate, cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/Skeleton'
+import Button from '@/components/ui/Button'
 
 type Ticket = {
   id: string
   title: string
   description: string
-  status: 'pending' | 'in_progress' | 'resolved'
+  status: 'pending' | 'in_progress' | 'resolved' | 'cancelled' | 'archived'
   priority: 'low' | 'medium' | 'high'
   created_at: string
   image_url: string | null
@@ -52,6 +52,23 @@ export default function TicketDetailPage() {
     fetch()
   }, [id])
 
+  const handleUpdateStatus = async (newStatus: 'cancelled' | 'archived') => {
+    try {
+      const { error } = await supabase
+        .from('tickets')
+        .update({ status: newStatus })
+        .eq('id', id)
+
+      if (error) throw error
+
+      setTicket(prev => prev ? { ...prev, status: newStatus } : null)
+      toast.success(`Ticket ${newStatus} successfully`)
+      setTimeout(() => router.push('/dashboard'), 500)
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update ticket')
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <Sidebar />
@@ -71,7 +88,7 @@ export default function TicketDetailPage() {
 
       <main className={cn(
         "pb-24 md:pb-8 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-16"
+        isOpen ? "md:ml-72" : "md:ml-20"
       )}>
         <div className="px-4 pt-4 md:px-10 md:pt-10 max-w-7xl">
           {/* Desktop Navigation Row */}
@@ -209,6 +226,26 @@ export default function TicketDetailPage() {
                     </div>
                   )}
                 </Card>
+
+                {/* Actions Panel */}
+                {ticket.status !== 'cancelled' && ticket.status !== 'archived' && ticket.status !== 'resolved' && (
+                  <Card className="p-6 shadow-xl shadow-red-900/5">
+                    <div className="flex items-center gap-2 mb-5">
+                      <div className="w-3 h-3 rounded-full bg-slate-400" />
+                      <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ticket Actions</h2>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <Button variant="outline" className="w-full justify-center" onClick={() => handleUpdateStatus('archived')}>
+                         <Archive className="w-4 h-4 mr-2" />
+                         Archive Ticket
+                      </Button>
+                      <Button variant="danger" className="w-full justify-center" onClick={() => handleUpdateStatus('cancelled')}>
+                         <XCircle className="w-4 h-4 mr-2" />
+                         Cancel Ticket
+                      </Button>
+                    </div>
+                  </Card>
+                )}
               </div>
 
             </div>
@@ -216,7 +253,7 @@ export default function TicketDetailPage() {
         </div>
       </main>
 
-      <MobileNav />
+
     </div>
   )
 }

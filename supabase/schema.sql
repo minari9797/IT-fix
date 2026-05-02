@@ -52,7 +52,7 @@ create table if not exists public.technicians (
 -- ─────────────────────────────────────────────
 -- 3. TICKETS TABLE
 -- ─────────────────────────────────────────────
-create type ticket_status as enum ('pending', 'in_progress', 'resolved');
+create type ticket_status as enum ('pending', 'in_progress', 'resolved', 'cancelled', 'archived');
 create type ticket_priority as enum ('low', 'medium', 'high');
 
 create table if not exists public.tickets (
@@ -93,9 +93,9 @@ create policy "Users can update own profile"
   using (auth.uid() = id);
 
 -- TECHNICIANS policies
-create policy "Anyone authenticated can view technicians"
+create policy "Anyone can view technicians"
   on public.technicians for select
-  to authenticated
+  to anon, authenticated
   using (true);
 
 create policy "Admins can manage technicians"

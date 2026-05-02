@@ -10,7 +10,6 @@ import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
-import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
@@ -35,7 +34,7 @@ export default function ProfilePage() {
       .then(({ data }) => {
         if (data) {
           setTicketStats({
-            total: data.length,
+            total: data.filter((t) => t.status !== 'cancelled' && t.status !== 'archived').length,
             resolved: data.filter((t) => t.status === 'resolved').length,
             pending: data.filter((t) => t.status === 'pending').length,
           })
@@ -71,7 +70,7 @@ export default function ProfilePage() {
 
       <main className={cn(
         "pb-24 md:pb-8 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-16"
+        isOpen ? "md:ml-72" : "md:ml-20"
       )}>
         <div className="px-4 pt-4 md:px-8 md:pt-10 max-w-lg mx-auto w-full space-y-4">
 
@@ -81,7 +80,7 @@ export default function ProfilePage() {
               <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-blue-900/50 mb-4">
                 {initials}
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{fullName}</h1>
+              <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{fullName}</h1>
               <div className="flex items-center gap-1.5 mt-1.5">
                 <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{email}</p>
@@ -156,7 +155,7 @@ export default function ProfilePage() {
         </div>
       </main>
 
-      <MobileNav />
+
     </div>
   )
 }

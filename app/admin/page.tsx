@@ -20,7 +20,6 @@ import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
-import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
 import Card from '@/components/ui/Card'
 import StatusBadge from '@/components/ui/StatusBadge'
@@ -30,7 +29,7 @@ import { PRIORITY_CONFIG, formatDate, cn } from '@/lib/utils'
 type TicketWithUser = {
   id: string
   title: string
-  status: 'pending' | 'in_progress' | 'resolved'
+  status: 'pending' | 'in_progress' | 'resolved' | 'cancelled' | 'archived'
   priority: 'low' | 'medium' | 'high'
   created_at: string
   user_id: string
@@ -134,7 +133,7 @@ export default function AdminPage() {
 
       <main className={cn(
         "pb-24 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-16"
+        isOpen ? "md:ml-72" : "md:ml-20"
       )}>
         <div className="px-4 pt-4 md:px-10 md:pt-10 max-w-7xl">
           
@@ -145,7 +144,7 @@ export default function AdminPage() {
                 <div className="w-10 h-10 rounded-lg bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-md">
                   <Shield className="w-5 h-5 font-bold" />
                 </div>
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Admin Console</h1>
+                <h1 className="text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Admin Console</h1>
               </div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total control over system requests and team assignments</p>
             </div>
@@ -221,6 +220,8 @@ export default function AdminPage() {
                               <option value="pending">Mark Pending</option>
                               <option value="in_progress">Mark In Progress</option>
                               <option value="resolved">Mark Resolved</option>
+                              <option value="cancelled">Mark Cancelled</option>
+                              <option value="archived">Mark Archived</option>
                             </select>
                           </div>
                         </td>
@@ -265,7 +266,7 @@ export default function AdminPage() {
         </div>
       </main>
 
-      <MobileNav />
+
     </div>
   )
 }

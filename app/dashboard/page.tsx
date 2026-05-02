@@ -10,7 +10,6 @@ import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/hooks'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import Sidebar from '@/components/layout/Sidebar'
-import MobileNav from '@/components/layout/MobileNav'
 import Topbar from '@/components/layout/Topbar'
 import TicketCard from '@/components/TicketCard'
 import Button from '@/components/ui/Button'
@@ -22,7 +21,7 @@ type TicketRow = {
   id: string
   title: string
   description: string
-  status: 'pending' | 'in_progress' | 'resolved'
+  status: 'pending' | 'in_progress' | 'resolved' | 'cancelled' | 'archived'
   priority: 'low' | 'medium' | 'high'
   created_at: string
   image_url: string | null
@@ -30,13 +29,15 @@ type TicketRow = {
   technicians?: { name: string } | null
 }
 
-type FilterStatus = 'all' | 'pending' | 'in_progress' | 'resolved'
+type FilterStatus = 'all' | 'pending' | 'in_progress' | 'resolved' | 'cancelled' | 'archived'
 
 const FILTERS: { label: string; value: FilterStatus }[] = [
   { label: 'All', value: 'all' },
   { label: 'Pending', value: 'pending' },
   { label: 'In Progress', value: 'in_progress' },
   { label: 'Resolved', value: 'resolved' },
+  { label: 'Cancelled', value: 'cancelled' },
+  { label: 'Archived', value: 'archived' },
 ]
 
 export default function DashboardPage() {
@@ -67,10 +68,11 @@ export default function DashboardPage() {
     setLoading(false)
   }
 
-  const filtered = filter === 'all' ? tickets : tickets.filter((t) => t.status === filter)
+  const activeTickets = tickets.filter(t => t.status !== 'cancelled' && t.status !== 'archived')
+  const filtered = filter === 'all' ? activeTickets : tickets.filter((t) => t.status === filter)
 
   const stats = {
-    total: tickets.length,
+    total: activeTickets.length,
     pending: tickets.filter((t) => t.status === 'pending').length,
     inProgress: tickets.filter((t) => t.status === 'in_progress').length,
     resolved: tickets.filter((t) => t.status === 'resolved').length,
@@ -89,13 +91,13 @@ export default function DashboardPage() {
 
       <main className={cn(
         "pb-24 md:pb-8 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-16"
+        isOpen ? "md:ml-72" : "md:ml-20"
       )}>
         <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
           {/* Header — desktop only (mobile uses Topbar) */}
           <div className="flex items-start justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+              <h1 className="text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                 Hey, {firstName} 👋
               </h1>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Here's your support overview</p>
@@ -192,7 +194,7 @@ export default function DashboardPage() {
         <Plus className="w-6 h-6" />
       </button>
 
-      <MobileNav />
+
     </div>
   )
 }
