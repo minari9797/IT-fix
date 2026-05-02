@@ -72,6 +72,7 @@ it-fix/
 npm i -g vercel
 vercel
 ```
+trigger vercel
 
 Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel environment variables.
 project url https://rlguiklvjdxyzywnpjwx.supabase.co
