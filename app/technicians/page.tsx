@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 type Technician = {
   id: string
   name: string
+  email: string
   specialty: string
   available: boolean
   avatar_url: string | null
@@ -90,7 +91,7 @@ export default function TechniciansPage() {
           )}
 
           {/* Technicians grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => <TechnicianCardSkeleton key={i} />)
             ) : filtered.length === 0 ? (
