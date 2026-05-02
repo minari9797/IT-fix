@@ -45,6 +45,7 @@ export default function TechnicianDashboard() {
   const [poolTickets, setPoolTickets] = useState<TicketRow[]>([])
   const [myTickets, setMyTickets] = useState<TicketRow[]>([])
   const [poolCount, setPoolCount] = useState(0)
+  const [resolvedCount, setResolvedCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -70,6 +71,15 @@ export default function TechnicianDashboard() {
         .eq('status', 'pending')
 
       setPoolCount(totalPoolCount ?? 0)
+
+      // Fetch resolved count for this technician
+      const { count: totalResolved } = await supabase
+        .from('tickets')
+        .select('*', { count: 'exact', head: true })
+        .eq('technician_id', technician.id)
+        .eq('status', 'resolved')
+
+      setResolvedCount(totalResolved ?? 0)
 
       // Fetch Pool preview (limited to 5 for dashboard display)
       const { data: poolData, error: poolError } = await supabase
@@ -192,8 +202,8 @@ export default function TechnicianDashboard() {
             <Card className="border-l-4 border-l-emerald-500 shadow-md">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Efficiency</p>
-                        <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">98%</h3>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Resolved</p>
+                        <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">{resolvedCount}</h3>
                     </div>
                     <div className="w-12 h-12 bg-emerald-500 shadow-lg shadow-emerald-900/20 rounded-xl flex items-center justify-center text-white">
                         <CheckCircle2 className="w-6 h-6" />
