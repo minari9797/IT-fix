@@ -64,8 +64,6 @@ it-fix/
 └── supabase/
     └── schema.sql      # Full DB schema + RLS
 
-project url https://rlguiklvjdxyzywnpjwx.supabase.co
-anon key eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsZ3Vpa2x2amR4eXp5d25wand4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjk4NTIsImV4cCI6MjA5MTcwNTg1Mn0.LYjAVfvevb9G1QN6eencYodSGczwItRjTlZmCgUAIjY
 ```
 
 ## 🚢 Deploy to Vercel
@@ -76,3 +74,5 @@ vercel
 ```
 
 Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel environment variables.
+project url https://rlguiklvjdxyzywnpjwx.supabase.co
+anon key eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsZ3Vpa2x2amR4eXp5d25wand4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjk4NTIsImV4cCI6MjA5MTcwNTg1Mn0.LYjAVfvevb9G1QN6eencYodSGczwItRjTlZmCgUAIjY
