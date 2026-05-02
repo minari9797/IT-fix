@@ -44,6 +44,7 @@ export default function TechnicianDashboard() {
   
   const [poolTickets, setPoolTickets] = useState<TicketRow[]>([])
   const [myTickets, setMyTickets] = useState<TicketRow[]>([])
+  const [poolCount, setPoolCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -61,7 +62,16 @@ export default function TechnicianDashboard() {
   const fetchDashboardData = async () => {
     setLoading(true)
     try {
-      // Fetch Pool (Unassigned & pending)
+      // Fetch real pool count (no limit) for the metric card
+      const { count: totalPoolCount } = await supabase
+        .from('tickets')
+        .select('*', { count: 'exact', head: true })
+        .is('technician_id', null)
+        .eq('status', 'pending')
+
+      setPoolCount(totalPoolCount ?? 0)
+
+      // Fetch Pool preview (limited to 5 for dashboard display)
       const { data: poolData, error: poolError } = await supabase
         .from('tickets')
         .select('*')
@@ -70,7 +80,7 @@ export default function TechnicianDashboard() {
         .order('created_at', { ascending: false })
         .limit(5)
 
-      // Fetch My Tickets (Active)
+      // Fetch My Tickets (Active — not resolved)
       const { data: myData, error: myError } = await supabase
         .from('tickets')
         .select('*')
@@ -161,7 +171,7 @@ export default function TechnicianDashboard() {
                 <div className="flex items-center justify-between transition-transform">
                     <div>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Active Pool</p>
-                        <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">{poolTickets.length}</h3>
+                        <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">{poolCount}</h3>
                     </div>
                     <div className="w-12 h-12 bg-amber-500 shadow-lg shadow-amber-900/20 rounded-xl flex items-center justify-center text-white">
                         <Inbox className="w-6 h-6" />

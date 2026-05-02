@@ -101,6 +101,8 @@ export default function MyTicketsPage() {
   }
 
   const resolveTicket = async (id: string) => {
+    // Optimistically remove from active list for instant feedback
+    setTickets(prev => prev.filter(t => t.id !== id))
     const { error } = await supabase
       .from('tickets')
       .update({ status: 'resolved' })
@@ -108,6 +110,7 @@ export default function MyTicketsPage() {
 
     if (error) {
       toast.error('Failed to resolve ticket')
+      fetchTickets() // Revert on error
     } else {
       toast.success('Ticket marked as resolved')
       fetchTickets()

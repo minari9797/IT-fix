@@ -51,8 +51,8 @@ export default function OpenPoolPage() {
     fetchPool()
   }, [technician])
 
-  const fetchPool = async () => {
-    setLoading(true)
+  const fetchPool = async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
       const { data: ticketData, error } = await supabase
         .from('tickets')
@@ -63,7 +63,7 @@ export default function OpenPoolPage() {
 
       if (error) {
         toast.error('Failed to access global ticket pool')
-        setLoading(false)
+        if (!silent) setLoading(false)
         return
       }
 
@@ -88,24 +88,31 @@ export default function OpenPoolPage() {
     } catch (err) {
       toast.error('Global sync interrupted')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
   const claimTicket = async (id: string) => {
-    const { error } = await supabase
+    // Optimistically remove from pool immediately for instant UX feedback
+    setTickets(prev => prev.filter(t => t.id !== id))
+    const { data, error } = await supabase
       .from('tickets')
       .update({ 
         technician_id: technician.id, 
         status: 'in_progress' 
       })
       .eq('id', id)
+      .select()
 
     if (error) {
       toast.error('Could not claim ticket')
+      fetchPool() // Full reload to revert
+    } else if (!data || data.length === 0) {
+      toast.error('Claim blocked by permissions — contact admin')
+      fetchPool() // Revert optimistic removal
     } else {
-      toast.success('Ticket claimed successfully')
-      fetchPool()
+      toast.success('Ticket claimed — check your active tasks!')
+      // Don't refetch — the ticket is correctly removed from our list
     }
   }
 

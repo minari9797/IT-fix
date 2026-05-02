@@ -109,34 +109,59 @@ export default function TechnicianTicketDetail() {
 
   const handleUpdate = async (updates: Partial<Ticket>) => {
     setSaving(true)
-    const { error } = await supabase
+    // Update local state immediately for instant UX feedback
+    if (updates.status) setStatus(updates.status as Ticket['status'])
+    if (updates.priority) setPriority(updates.priority as Ticket['priority'])
+    setTicket(prev => prev ? { ...prev, ...updates } : null)
+
+    const { data, error } = await supabase
       .from('tickets')
       .update(updates)
       .eq('id', id)
+      .select()
 
     if (error) {
       toast.error('Failed to update system record')
+      fetchTicket()
+    } else if (!data || data.length === 0) {
+      toast.error('Update blocked by permissions — contact admin')
+      fetchTicket()
     } else {
       toast.success('Ticket synchronized successfully')
-      fetchTicket()
+      // Update local ticket with confirmed DB data
+      setTicket(prev => prev ? { ...prev, ...data[0] } : null)
+      setStatus(data[0].status)
+      setPriority(data[0].priority)
+      setInternalNotes(data[0].internal_notes || '')
+      setResolutionSummary(data[0].resolution_summary || '')
     }
     setSaving(false)
   }
 
   const handleClaim = async () => {
     setSaving(true)
-    const { error } = await supabase
+    // Update local state immediately
+    setStatus('in_progress')
+    setTicket(prev => prev ? { ...prev, technician_id: technician.id, status: 'in_progress' } : null)
+
+    const { data, error } = await supabase
       .from('tickets')
       .update({
         technician_id: technician.id,
         status: 'in_progress'
       })
       .eq('id', id)
+      .select()
 
-    if (error) toast.error('Could not claim asset')
-    else {
-      toast.success('Ticket claimed. Priority established.')
+    if (error) {
+      toast.error('Could not claim asset')
       fetchTicket()
+    } else if (!data || data.length === 0) {
+      toast.error('Claim blocked by permissions — contact admin')
+      fetchTicket()
+    } else {
+      toast.success('Ticket claimed. Priority established.')
+      setTicket(prev => prev ? { ...prev, ...data[0] } : null)
     }
     setSaving(false)
   }
@@ -169,7 +194,7 @@ export default function TechnicianTicketDetail() {
             </div>
 
             <div className="flex items-center gap-3">
-              {ticket?.status === 'pending' && !ticket.technician_id && (
+              {status === 'pending' && !ticket?.technician_id && (
                 <button
                   onClick={handleClaim}
                   disabled={saving}
@@ -179,7 +204,7 @@ export default function TechnicianTicketDetail() {
                   Claim Assignment
                 </button>
               )}
-              {ticket?.status !== 'resolved' && ticket?.technician_id === technician.id && (
+              {status !== 'resolved' && ticket?.technician_id === technician.id && (
                 <button
                   onClick={() => handleUpdate({ status: 'resolved' })}
                   disabled={saving}
@@ -215,9 +240,9 @@ export default function TechnicianTicketDetail() {
                     </div>
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <StatusBadge status={ticket.status} />
-                        <span className={cn('text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border shadow-sm', PRIORITY_CONFIG[ticket.priority].color)}>
-                          {ticket.priority} Priority
+                        <StatusBadge status={status} />
+                        <span className={cn('text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border shadow-sm', PRIORITY_CONFIG[priority].color)}>
+                          {priority} Priority
                         </span>
                       </div>
                       <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight mb-2">
@@ -270,7 +295,11 @@ export default function TechnicianTicketDetail() {
                       <h3 className="text-[10px] font-black text-amber-700 dark:text-amber-500 uppercase tracking-widest">Work Logs & System Notes</h3>
                     </div>
                     <button
-                      onClick={() => handleUpdate({ status: 'resolved' })}
+                      onClick={() => handleUpdate({ 
+                        status: 'resolved',
+                        internal_notes: internalNotes,
+                        resolution_summary: resolutionSummary
+                      })}
                       disabled={saving}
                       className="text-[10px] font-black text-amber-600 hover:text-amber-800"
                     >
