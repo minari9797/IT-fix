@@ -2,33 +2,32 @@
 
 import { cn } from '@/lib/utils'
 import { ButtonHTMLAttributes, forwardRef } from 'react'
-import { Loader2 } from 'lucide-react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   loading?: boolean
   fullWidth?: boolean
+  /** portal context: 'user' = blue, 'tech' = purple */
+  portal?: 'user' | 'tech'
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', loading, fullWidth, children, disabled, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', loading, fullWidth, children, disabled, portal = 'user', ...props }, ref) => {
     const base =
-      'inline-flex items-center justify-center gap-2 font-semibold rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900'
+      'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none uppercase tracking-widest'
 
     const variants = {
-      primary:
-        'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 focus:ring-blue-500',
-      secondary:
-        'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-100 border border-slate-200 dark:border-slate-600 shadow-sm hover:bg-slate-200 dark:hover:bg-slate-600 focus:ring-slate-500',
-      ghost: 'bg-transparent text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 focus:ring-slate-500',
-      danger: 'bg-red-600 hover:bg-red-500 text-white shadow-sm shadow-red-500/20 focus:ring-red-500',
+      primary: portal === 'tech' ? 'ds-btn-purple' : 'ds-btn-blue',
+      secondary: 'ds-btn-ghost',
+      ghost: 'bg-transparent text-[var(--outline)] hover:text-[var(--on-surface-var)]',
+      danger: 'bg-transparent text-[var(--outline)] hover:text-[var(--error)]',
     }
 
     const sizes = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-5 py-2.5 text-sm',
-      lg: 'px-6 py-3.5 text-base',
+      sm: 'px-4 py-2 text-[11px]',
+      md: 'px-5 py-2.5 text-[12px]',
+      lg: 'px-6 py-3.5 text-[12px]',
     }
 
     return (
@@ -38,8 +37,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(base, variants[variant], sizes[size], fullWidth && 'w-full', className)}
         {...props}
       >
-        {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-        {children}
+        {loading ? <span className="opacity-60">Loading…</span> : children}
       </button>
     )
   }

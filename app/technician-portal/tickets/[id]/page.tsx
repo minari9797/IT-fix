@@ -2,22 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import {
-  ArrowLeft,
-  User,
-  Calendar,
-  AlertCircle,
-  Image as ImageIcon,
-  MessageSquare,
-  ClipboardList,
-  Save,
-  CheckCircle2,
-  Clock,
-  ShieldAlert,
-  Mail,
-  Zap,
-  Tag
-} from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useSidebar } from '@/lib/context/SidebarContext'
@@ -25,9 +9,7 @@ import { useTechnician } from '@/lib/hooks'
 import TechnicianTopbar from '@/components/layout/TechnicianTopbar'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Card from '@/components/ui/Card'
-import Button from '@/components/ui/Button'
-import { PRIORITY_CONFIG, formatDate, cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/Skeleton'
+import { cn } from '@/lib/utils'
 
 type Ticket = {
   id: string
@@ -109,34 +91,59 @@ export default function TechnicianTicketDetail() {
 
   const handleUpdate = async (updates: Partial<Ticket>) => {
     setSaving(true)
-    const { error } = await supabase
+    // Update local state immediately for instant UX feedback
+    if (updates.status) setStatus(updates.status as Ticket['status'])
+    if (updates.priority) setPriority(updates.priority as Ticket['priority'])
+    setTicket(prev => prev ? { ...prev, ...updates } : null)
+
+    const { data, error } = await supabase
       .from('tickets')
       .update(updates)
       .eq('id', id)
+      .select()
 
     if (error) {
       toast.error('Failed to update system record')
+      fetchTicket()
+    } else if (!data || data.length === 0) {
+      toast.error('Update blocked by permissions — contact admin')
+      fetchTicket()
     } else {
       toast.success('Ticket synchronized successfully')
-      fetchTicket()
+      // Update local ticket with confirmed DB data
+      setTicket(prev => prev ? { ...prev, ...data[0] } : null)
+      setStatus(data[0].status)
+      setPriority(data[0].priority)
+      setInternalNotes(data[0].internal_notes || '')
+      setResolutionSummary(data[0].resolution_summary || '')
     }
     setSaving(false)
   }
 
   const handleClaim = async () => {
     setSaving(true)
-    const { error } = await supabase
+    // Update local state immediately
+    setStatus('in_progress')
+    setTicket(prev => prev ? { ...prev, technician_id: technician.id, status: 'in_progress' } : null)
+
+    const { data, error } = await supabase
       .from('tickets')
       .update({
         technician_id: technician.id,
         status: 'in_progress'
       })
       .eq('id', id)
+      .select()
 
-    if (error) toast.error('Could not claim asset')
-    else {
-      toast.success('Ticket claimed. Priority established.')
+    if (error) {
+      toast.error('Could not claim asset')
       fetchTicket()
+    } else if (!data || data.length === 0) {
+      toast.error('Claim blocked by permissions — contact admin')
+      fetchTicket()
+    } else {
+      toast.success('Ticket claimed. Priority established.')
+      setTicket(prev => prev ? { ...prev, ...data[0] } : null)
     }
     setSaving(false)
   }
@@ -144,7 +151,7 @@ export default function TechnicianTicketDetail() {
   if (authLoading || !technician) return null
 
   return (
-    <div className="min-h-screen uppercase-first">
+    <div className="min-h-screen" style={{ backgroundColor: '#131315' }}>
       <TechnicianTopbar title={`Ticket #${id?.toString().substring(0, 8)}`} />
 
       <main className={cn(
@@ -155,37 +162,34 @@ export default function TechnicianTicketDetail() {
 
           {/* Header Actions */}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-            <div className="group">
+            <div>
               <button
                 onClick={() => router.back()}
-                className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-amber-500 transition-all uppercase tracking-widest"
+                className="text-xs font-semibold text-slate-600 hover:text-slate-300 transition-all uppercase tracking-widest"
               >
-                <ArrowLeft className="w-4 h-4" />
-                Return to Base
+                ← Back
               </button>
-              <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight mt-2">
-                Manage Incident Record
+              <h1 className="text-2xl font-black text-white tracking-tight mt-2">
+                Manage Incident
               </h1>
             </div>
 
             <div className="flex items-center gap-3">
-              {ticket?.status === 'pending' && !ticket.technician_id && (
+              {status === 'pending' && !ticket?.technician_id && (
                 <button
                   onClick={handleClaim}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-900/40 transition-all"
+                  className="text-purple-400 hover:text-purple-300 text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-40"
                 >
-                  <Zap className="w-4 h-4" />
                   Claim Assignment
                 </button>
               )}
-              {ticket?.status !== 'resolved' && ticket?.technician_id === technician.id && (
+              {status !== 'resolved' && ticket?.technician_id === technician.id && (
                 <button
                   onClick={() => handleUpdate({ status: 'resolved' })}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-900/40 transition-all"
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-widest transition-all rounded disabled:opacity-40"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
                   Finalize Resolution
                 </button>
               )}
@@ -193,11 +197,11 @@ export default function TechnicianTicketDetail() {
           </div>
 
           {loading ? (
-            <div className="space-y-6">
-              <Skeleton className="h-40 w-full rounded-2xl" />
+            <div className="space-y-6 animate-pulse">
+              <div className="h-32 w-full rounded-lg bg-slate-800/50" />
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Skeleton className="lg:col-span-2 h-96 rounded-2xl" />
-                <Skeleton className="h-96 rounded-2xl" />
+                <div className="lg:col-span-2 h-96 rounded-lg bg-slate-800/50" />
+                <div className="h-96 rounded-lg bg-slate-800/50" />
               </div>
             </div>
           ) : ticket ? (
@@ -207,95 +211,89 @@ export default function TechnicianTicketDetail() {
               <div className="lg:col-span-8 space-y-6">
 
                 {/* Visual Header */}
-                <Card className="p-8 border-amber-500/10 shadow-xl shadow-amber-950/5 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full -mr-16 -mt-16" />
-                  <div className="flex flex-col md:flex-row gap-6 items-start relative z-10">
-                    <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 shadow-inner">
-                      <ClipboardList className="w-8 h-8 text-amber-600 dark:text-amber-500" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <StatusBadge status={ticket.status} />
-                        <span className={cn('text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border shadow-sm', PRIORITY_CONFIG[ticket.priority].color)}>
-                          {ticket.priority} Priority
-                        </span>
-                      </div>
-                      <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight mb-2">
-                        {ticket.title}
-                      </h2>
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 italic">
-                        UID: {ticket.id}
-                      </p>
-                    </div>
+                <Card className="p-5">
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <StatusBadge status={status} />
+                    <span className={cn(
+                      'text-[10px] font-bold uppercase tracking-widest',
+                      priority === 'high' ? 'text-purple-400' :
+                      priority === 'medium' ? 'text-blue-400' :
+                      'text-slate-500'
+                    )}>
+                      {priority} Priority
+                    </span>
                   </div>
+                  <h2 className="text-xl font-black tracking-tight leading-tight mb-2" style={{ color: '#e5e1e4' }}>
+                    {ticket.title}
+                  </h2>
+                  <p className="uppercase tracking-widest text-[10px]" style={{ color: '#434656' }}>
+                    UID: {ticket.id}
+                  </p>
                 </Card>
 
                 {/* Description & Assets */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card className="p-0 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4 text-amber-500" />
-                      <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Internal Narrative</h3>
-                    </div>
-                    <div className="p-6">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
-                        {ticket.description}
-                      </p>
-                    </div>
+                  <Card className="p-5">
+                    <p className="uppercase tracking-widest text-[10px] font-bold mb-3" style={{ color: '#8e90a2' }}>Description</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: '#c4c5d9' }}>
+                      {ticket.description}
+                    </p>
                   </Card>
 
-                  <Card className="p-0 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-amber-500" />
-                      <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Visual Asset</h3>
-                    </div>
-                    <div className="p-4 flex items-center justify-center min-h-[200px]">
+                  <Card className="p-5">
+                    <p className="uppercase tracking-widest text-[10px] font-bold mb-3" style={{ color: '#8e90a2' }}>Visual Asset</p>
+                    <div className="flex items-center justify-center min-h-[160px]">
                       {ticket.image_url ? (
-                        <img src={ticket.image_url} alt="Problem" className="rounded-lg max-h-[300px] object-contain shadow-2xl" />
+                        <img src={ticket.image_url} alt="Problem" className="rounded max-h-[260px] object-contain" />
                       ) : (
-                        <div className="text-slate-400 dark:text-slate-600 flex flex-col items-center gap-2">
-                          <ShieldAlert className="w-8 h-8 opacity-20" />
-                          <span className="text-[10px] font-bold uppercase tracking-widest">No Visual Data</span>
-                        </div>
+                        <p className="uppercase tracking-widest text-xs" style={{ color: '#434656' }}>No image attached</p>
                       )}
                     </div>
                   </Card>
                 </div>
 
-                {/* Internal Workspace */}
-                <Card className="p-0 border-amber-500/20 shadow-xl overflow-hidden">
-                  <div className="px-6 py-4 border-b border-amber-500/20 bg-amber-500/5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-amber-600" />
-                      <h3 className="text-[10px] font-black text-amber-700 dark:text-amber-500 uppercase tracking-widest">Work Logs & System Notes</h3>
-                    </div>
+                {/* Work Logs */}
+                <Card className="p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="uppercase tracking-widest text-[10px] font-bold" style={{ color: '#8e90a2' }}>Work Logs & Notes</p>
                     <button
-                      onClick={() => handleUpdate({ status: 'resolved' })}
+                      onClick={() => handleUpdate({
+                        internal_notes: internalNotes,
+                        resolution_summary: resolutionSummary
+                      })}
                       disabled={saving}
-                      className="text-[10px] font-black text-amber-600 hover:text-amber-800"
+                      className="text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-40"
+                      style={{ color: '#d0bcff' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = '#e9ddff' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = '#d0bcff' }}
                     >
-                      Valider le changement
+                      Save Changes
                     </button>
                   </div>
-                  <div className="p-8 space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Internal Progress Notes (Private)</label>
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="uppercase tracking-widest text-[10px] font-bold" style={{ color: '#8e90a2' }}>Internal Notes (Private)</label>
                       <textarea
                         value={internalNotes}
                         onChange={(e) => setInternalNotes(e.target.value)}
                         onBlur={() => handleUpdate({ internal_notes: internalNotes })}
-                        placeholder="Log technical details, IP addresses, or internal hurdles here..."
-                        className="w-full min-h-[120px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all resize-none shadow-inner"
+                        placeholder="Log technical details here..."
+                        className="w-full min-h-[100px] rounded-xl p-3 text-sm outline-none resize-none transition-all duration-200"
+                        style={{ backgroundColor: '#1c1b1d', border: '1px solid rgba(255,255,255,0.06)', color: '#e5e1e4' }}
+                        onFocus={(e) => { e.target.style.borderColor = '#d0bcff' }}
+                        onBlur={(e) => { handleUpdate({ internal_notes: internalNotes }); e.target.style.borderColor = 'rgba(255,255,255,0.06)' }}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Resolution Summary (Post-Mortem)</label>
+                    <div className="space-y-1.5">
+                      <label className="uppercase tracking-widest text-[10px] font-bold" style={{ color: '#8e90a2' }}>Resolution Summary</label>
                       <textarea
                         value={resolutionSummary}
                         onChange={(e) => setResolutionSummary(e.target.value)}
-                        onBlur={() => handleUpdate({ resolution_summary: resolutionSummary })}
-                        placeholder="Describe the final solution implementation..."
-                        className="w-full min-h-[120px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all resize-none shadow-inner"
+                        placeholder="Describe the final solution..."
+                        className="w-full min-h-[100px] rounded-xl p-3 text-sm outline-none resize-none transition-all duration-200"
+                        style={{ backgroundColor: '#1c1b1d', border: '1px solid rgba(255,255,255,0.06)', color: '#e5e1e4' }}
+                        onFocus={(e) => { e.target.style.borderColor = '#d0bcff' }}
+                        onBlur={(e) => { handleUpdate({ resolution_summary: resolutionSummary }); e.target.style.borderColor = 'rgba(255,255,255,0.06)' }}
                       />
                     </div>
                   </div>
@@ -306,22 +304,21 @@ export default function TechnicianTicketDetail() {
               <div className="lg:col-span-4 space-y-6">
 
                 {/* Record Controls */}
-                <Card className="p-6 space-y-6 shadow-xl border-slate-200 dark:border-slate-800">
+                <Card className="p-5 space-y-5">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset Priority</p>
+                      <p className="uppercase tracking-widest text-[10px] font-bold" style={{ color: '#8e90a2' }}>Priority</p>
                       <div className="grid grid-cols-3 gap-2">
-                        {['low', 'medium', 'high'].map(p => (
+                        {(['low', 'medium', 'high'] as const).map(p => (
                           <button
                             key={p}
                             disabled={saving}
-                            onClick={() => handleUpdate({ priority: p as any })}
-                            className={cn(
-                              "py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border",
-                              priority === p
-                                ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-transparent shadow-lg"
-                                : "text-slate-500 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900"
-                            )}
+                            onClick={() => handleUpdate({ priority: p })}
+                            className="py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+                            style={priority === p
+                              ? { backgroundColor: '#2e5bff', color: '#efefff', border: '1px solid transparent' }
+                              : { backgroundColor: 'transparent', color: '#8e90a2', border: '1px solid rgba(255,255,255,0.08)' }
+                            }
                           >
                             {p}
                           </button>
@@ -330,81 +327,51 @@ export default function TechnicianTicketDetail() {
                     </div>
 
                     <div className="space-y-2">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Workflow State</p>
+                      <p className="uppercase tracking-widest text-[10px] font-bold" style={{ color: '#8e90a2' }}>Status</p>
                       <div className="flex flex-col gap-2">
-                        {['pending', 'in_progress', 'resolved'].map(s => (
+                        {(['pending', 'in_progress', 'resolved'] as const).map(s => (
                           <button
                             key={s}
                             disabled={saving}
-                            onClick={() => handleUpdate({ status: s as any })}
-                            className={cn(
-                              "px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-between group",
-                              status === s
-                                ? "bg-amber-500 text-white shadow-lg shadow-amber-900/20"
-                                : "bg-slate-100 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
-                            )}
+                            onClick={() => handleUpdate({ status: s })}
+                            className="px-4 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all text-left"
+                            style={status === s
+                              ? { backgroundColor: '#571bc1', color: '#c4abff', border: '1px solid transparent' }
+                              : { backgroundColor: 'transparent', color: '#8e90a2', border: '1px solid rgba(255,255,255,0.08)' }
+                            }
                           >
-                            <div className="flex items-center gap-2">
-                              {s === 'pending' && <Clock className="w-4 h-4" />}
-                              {s === 'in_progress' && <Zap className="w-4 h-4" />}
-                              {s === 'resolved' && <CheckCircle2 className="w-4 h-4" />}
-                              {s.replace('_', ' ')}
-                            </div>
-                            {status === s && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                            {s.replace('_', ' ')}
                           </button>
                         ))}
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center shadow-inner">
-                      <Calendar className="w-4 h-4 text-amber-500" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Record Timestamp</p>
-                      <p className="text-xs font-bold text-slate-900 dark:text-slate-100">{formatDate(ticket.created_at)}</p>
-                    </div>
+                  <div className="pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <p className="uppercase tracking-widest text-[10px] font-bold mb-1" style={{ color: '#8e90a2' }}>Submitted</p>
+                    <p className="text-xs font-semibold" style={{ color: '#c4c5d9' }}>{new Date(ticket.created_at).toLocaleDateString()}</p>
                   </div>
                 </Card>
 
                 {/* Requester Identity */}
-                <Card className="p-6 border-slate-200 dark:border-slate-800 shadow-xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-2xl rounded-full -mr-12 -mt-12 group-hover:bg-blue-500/10 transition-colors" />
+                <Card className="p-5 space-y-4">
+                  <p className="uppercase tracking-widest text-[10px] font-bold" style={{ color: '#8e90a2' }}>Requester</p>
 
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">End-User Profile</h3>
+                  <div>
+                    <p className="text-base font-extrabold leading-tight" style={{ color: '#e5e1e4' }}>
+                      {ticket.profiles?.full_name || 'Anonymous User'}
+                    </p>
+                    <p className="uppercase tracking-widest text-[10px] mt-0.5" style={{ color: '#b8c3ff' }}>User</p>
                   </div>
 
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-blue-900/40 border-2 border-white/20">
-                        {ticket.profiles?.full_name?.[0].toUpperCase() || 'U'}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-base font-black text-slate-900 dark:text-slate-100 tracking-tight truncate leading-tight">
-                          {ticket.profiles?.full_name || 'Anonymous User'}
-                        </p>
-                        <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mt-1">Requester Identity Verified</p>
-                      </div>
+                  <div className="pt-3 space-y-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div>
+                      <p className="uppercase tracking-widest text-[10px] font-bold mb-0.5" style={{ color: '#434656' }}>Contact</p>
+                      <p className="text-xs font-semibold truncate" style={{ color: '#c4c5d9' }}>{ticket.profiles?.email || '—'}</p>
                     </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
-                        <Mail className="w-4 h-4 text-slate-400" />
-                        <div className="min-w-0">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 leading-none">Contact Point</p>
-                          <p className="text-xs font-bold text-slate-900 dark:text-slate-200 truncate">{ticket.profiles?.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
-                        <User className="w-4 h-4 text-slate-400" />
-                        <div className="min-w-0">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 leading-none">Account UID</p>
-                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate tracking-tight">{ticket.user_id}</p>
-                        </div>
-                      </div>
+                    <div>
+                      <p className="uppercase tracking-widest text-[10px] font-bold mb-0.5" style={{ color: '#434656' }}>Account UID</p>
+                      <p className="text-[10px] truncate" style={{ color: '#434656' }}>{ticket.user_id}</p>
                     </div>
                   </div>
                 </Card>

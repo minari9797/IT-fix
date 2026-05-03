@@ -1,92 +1,125 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  LayoutDashboard, 
-  Search, 
-  ClipboardList, 
-  UserCircle,
-  ShieldCheck, 
-  LogOut, 
-  X, 
-  ChevronLeft, 
-  ChevronRight,
-  Sun, 
-  Moon
+  LayoutDashboard, Search, ClipboardList, ShieldCheck,
+  LogOut, X, ChevronLeft, ChevronRight, Sun, Moon, Power
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useSidebar } from '@/lib/context/SidebarContext'
 import { useTheme } from '@/lib/context/ThemeContext'
+import { useTechnician } from '@/lib/hooks'
+import toast from 'react-hot-toast'
 
 const techNavItems = [
   { href: '/technician-portal/dashboard', label: 'Command Center', icon: LayoutDashboard },
   { href: '/technician-portal/my-tickets', label: 'My Tickets', icon: ClipboardList },
-  { href: '/technician-portal/pool',       label: 'Open Pool', icon: Search },
-  { href: '/technician-portal/profile',    label: 'Profile', icon: UserCircle },
+  { href: '/technician-portal/pool', label: 'Open Pool', icon: Search },
 ]
+
+// Tech sidebar uses secondary (purple) tokens
+// secondary-container: #571bc1 | secondary: #d0bcff | surface-low: #1c1b1d
+const SB_BG  = '#1c1b1d'
+const SB_BDR = '#434656'
+const SB_DIV = 'rgba(67,70,86,0.6)'
 
 export default function TechnicianSidebar() {
   const pathname = usePathname()
-  const router   = useRouter()
+  const router = useRouter()
   const { isOpen, toggle, close } = useSidebar()
   const { theme, toggleTheme } = useTheme()
+  const { technician } = useTechnician()
+
+  const [available, setAvailable] = useState<boolean>(true)
+  const [togglingAvail, setTogglingAvail] = useState(false)
+
+  useEffect(() => {
+    if (technician) setAvailable(technician.available)
+  }, [technician])
+
+  const toggleAvailability = async () => {
+    if (!technician || togglingAvail) return
+    setTogglingAvail(true)
+    const next = !available
+    setAvailable(next)
+    const { error } = await supabase
+      .from('technicians')
+      .update({ available: next })
+      .eq('id', technician.id)
+    if (error) {
+      setAvailable(!next)
+      toast.error('Could not update availability')
+    } else {
+      toast.success(next ? 'You are now Online' : 'You are now Offline')
+    }
+    setTogglingAvail(false)
+  }
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/technician-portal/login')
   }
 
+  const mkBtn = (handler: () => void, title: string, icon: React.ReactNode, label: string, extraStyle?: React.CSSProperties) => (
+    <button
+      onClick={handler}
+      title={title}
+      className={cn('flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium transition-all duration-200', !isOpen && 'md:justify-center md:px-2')}
+      style={{ color: '#8e90a2', border: '1px solid transparent', ...extraStyle }}
+      onMouseEnter={(e) => { if (!extraStyle?.color || extraStyle.color === '#8e90a2') { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLElement).style.color = '#c4c5d9' } }}
+      onMouseLeave={(e) => { if (!extraStyle?.color || extraStyle.color === '#8e90a2') { (e.currentTarget as HTMLElement).style.backgroundColor = ''; (e.currentTarget as HTMLElement).style.color = '#8e90a2' } }}
+    >
+      {icon}
+      <span className={cn('whitespace-nowrap transition-all duration-200 overflow-hidden', isOpen ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0 md:hidden')}>
+        {label}
+      </span>
+    </button>
+  )
+
   return (
     <>
       {/* Mobile backdrop */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 md:hidden animate-fade-in"
-          onClick={close}
-        />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden animate-fade-in" onClick={close} />
       )}
 
       {/* Sidebar panel */}
       <aside
+        style={{ backgroundColor: SB_BG, border: `1px solid ${SB_BDR}` }}
         className={cn(
-          'fixed left-3 top-3 bottom-3 z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl shadow-slate-900/10 dark:shadow-slate-950/50 rounded-2xl',
+          'fixed left-3 top-3 bottom-3 z-50 shadow-2xl rounded-2xl',
           'flex flex-col transition-all duration-300',
           'md:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+24px)]',
           isOpen ? 'md:w-64' : 'md:w-16',
         )}
       >
-        {/* Logo row */}
-        <div className={cn(
-          'flex items-center border-b border-slate-200 dark:border-slate-800 transition-all duration-300',
-          isOpen ? 'justify-between px-5 py-5' : 'justify-center px-2 py-5',
-        )}>
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-amber-500 flex items-center justify-center shadow-md shadow-amber-900/50">
-              <ShieldCheck className="w-4 h-4 text-white" />
+        {/* Logo */}
+        <div
+          style={{ borderBottom: `1px solid ${SB_DIV}` }}
+          className={cn('flex items-center transition-all duration-300', isOpen ? 'justify-between px-5 py-5' : 'justify-center px-2 py-5')}
+        >
+          <div className="flex items-center gap-3 overflow-hidden">
+            {/* secondary-container = #571bc1 */}
+            <div className="w-9 h-9 flex-shrink-0 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#571bc1' }}>
+              <ShieldCheck className="w-4 h-4" style={{ color: '#c4abff' }} />
             </div>
-            <span className={cn(
-              'text-lg font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap transition-all duration-200',
-              isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:block',
-            )}>
-              IT-Fix <span className="text-amber-500 text-[10px] uppercase tracking-tighter ml-1">Tech</span>
-            </span>
+            <div className={cn('flex flex-col transition-all duration-200 overflow-hidden', isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:block')}>
+              <span className="text-base font-extrabold whitespace-nowrap leading-none" style={{ color: '#e5e1e4' }}>IT-Fix</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest leading-none mt-0.5" style={{ color: '#d0bcff' }}>Tech Portal</span>
+            </div>
           </div>
-
-          {/* Mobile close */}
-          <button
-            onClick={close}
-            className="md:hidden p-2 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-          >
+          <button onClick={close} className="md:hidden p-2 rounded-lg" style={{ color: '#8e90a2' }}>
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Scrollable Content Wrapper */}
-        <div className="flex-1 min-h-0 flex flex-col overflow-y-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
-          {/* Nav links */}
+        {/* Content */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-y-auto pb-4 scrollbar-none">
+          {/* Nav */}
           <nav className="flex-1 px-2 py-4 space-y-0.5">
             {techNavItems.map(({ href, label, icon: Icon }) => {
               const isActive = pathname === href
@@ -96,19 +129,16 @@ export default function TechnicianSidebar() {
                   href={href}
                   title={label}
                   onClick={() => { if (window.innerWidth < 768) close() }}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
-                    !isOpen && 'md:justify-center md:px-2',
-                    isActive
-                      ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent',
-                  )}
+                  className={cn('flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200', !isOpen && 'md:justify-center md:px-2')}
+                  style={isActive
+                    ? { backgroundColor: 'rgba(87,27,193,0.2)', color: '#d0bcff', border: '1px solid rgba(208,188,255,0.15)' }
+                    : { color: '#8e90a2', border: '1px solid transparent' }
+                  }
+                  onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#c4c5d9' } }}
+                  onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = '#8e90a2' } }}
                 >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
-                  <span className={cn(
-                    'whitespace-nowrap transition-all duration-200 overflow-hidden',
-                    isOpen ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0 md:hidden',
-                  )}>
+                  <Icon style={{ width: 18, height: 18, flexShrink: 0 }} />
+                  <span className={cn('whitespace-nowrap transition-all duration-200 overflow-hidden', isOpen ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0 md:hidden')}>
                     {label}
                   </span>
                 </Link>
@@ -116,24 +146,30 @@ export default function TechnicianSidebar() {
             })}
           </nav>
 
-          {/* Theme toggle, Sign out + collapse */}
-          <div className="px-2 py-2 border-t border-slate-200 dark:border-slate-800 space-y-0.5 mt-auto">
-            {/* Theme toggle */}
+          {/* Bottom actions */}
+          <div style={{ borderTop: `1px solid ${SB_DIV}` }} className="px-2 py-2 space-y-0.5">
+            {/* Connected as */}
+            {isOpen && technician && (
+              <div className="px-3 py-2 mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: '#434656' }}>Connecté en tant que</p>
+                <p className="text-xs font-semibold truncate" style={{ color: '#c4c5d9' }}>{technician.name}</p>
+                <p className="text-[10px] truncate" style={{ color: '#434656' }}>{technician.email}</p>
+              </div>
+            )}
+            {/* Availability */}
             <button
-              onClick={toggleTheme}
-              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-semibold border border-transparent transition-all duration-200',
-                'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100',
-                !isOpen && 'md:justify-center md:px-2',
-              )}
+              onClick={toggleAvailability}
+              disabled={togglingAvail}
+              title={available ? 'Go Offline' : 'Go Online'}
+              className={cn('flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-50', !isOpen && 'md:justify-center md:px-2')}
+              style={available
+                ? { color: '#4ade80', border: '1px solid rgba(74,222,128,0.2)', backgroundColor: 'rgba(74,222,128,0.06)' }
+                : { color: '#8e90a2', border: '1px solid transparent' }
+              }
             >
-              {theme === 'dark' ? <Sun className="w-5 h-5 flex-shrink-0" /> : <Moon className="w-5 h-5 flex-shrink-0" />}
-              <span className={cn(
-                'whitespace-nowrap transition-all duration-200 overflow-hidden',
-                isOpen ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0 md:hidden',
-              )}>
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              <Power style={{ width: 18, height: 18, flexShrink: 0 }} />
+              <span className={cn('whitespace-nowrap transition-all duration-200 overflow-hidden', isOpen ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0 md:hidden')}>
+                {available ? 'Online' : 'Offline'}
               </span>
             </button>
 
@@ -141,55 +177,32 @@ export default function TechnicianSidebar() {
             <button
               onClick={handleSignOut}
               title="Sign Out"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium border border-transparent',
-                'text-slate-500 dark:text-slate-400 hover:bg-red-500/10 hover:text-red-500 transition-all duration-200',
-                !isOpen && 'md:justify-center md:px-2',
-              )}
+              className={cn('flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium transition-all duration-200', !isOpen && 'md:justify-center md:px-2')}
+              style={{ color: '#8e90a2', border: '1px solid transparent' }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,180,171,0.08)'; e.currentTarget.style.color = '#ffb4ab' }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = '#8e90a2' }}
             >
-              <LogOut className="w-5 h-5 flex-shrink-0" />
-              <span className={cn(
-                'whitespace-nowrap transition-all duration-200 overflow-hidden',
-                isOpen ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0 md:hidden',
-              )}>
+              <LogOut style={{ width: 18, height: 18, flexShrink: 0 }} />
+              <span className={cn('whitespace-nowrap transition-all duration-200 overflow-hidden', isOpen ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0 md:hidden')}>
                 Sign Out
               </span>
             </button>
 
-            {/* Desktop collapse toggle */}
+            {/* Collapse */}
             <button
               onClick={toggle}
-              title={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-              className={cn(
-                'hidden md:flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium border border-transparent',
-                'text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-300 transition-all duration-200',
-                !isOpen && 'md:justify-center md:px-2',
-              )}
+              title={isOpen ? 'Collapse' : 'Expand'}
+              className={cn('hidden md:flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium transition-all duration-200', !isOpen && 'md:justify-center md:px-2')}
+              style={{ color: '#434656', border: '1px solid transparent' }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#8e90a2' }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = '#434656' }}
             >
               {isOpen
-                ? <><ChevronLeft className="w-5 h-5 flex-shrink-0" /><span className="whitespace-nowrap">Collapse</span></>
-                : <ChevronRight className="w-5 h-5 flex-shrink-0" />
+                ? <><ChevronLeft style={{ width: 18, height: 18, flexShrink: 0 }} /><span className="whitespace-nowrap">Collapse</span></>
+                : <ChevronRight style={{ width: 18, height: 18, flexShrink: 0 }} />
               }
             </button>
           </div>
-
-          {/* System Status - Premium Touch */}
-          {isOpen && (
-              <div className="px-5 py-3 border-t border-slate-200 dark:border-slate-800 animate-fade-in">
-                  <div className="bg-slate-50 dark:bg-slate-950/50 rounded-xl p-2.5 border border-slate-200 dark:border-slate-800/50 shadow-inner">
-                      <div className="flex items-center gap-2.5">
-                          <div className="relative flex h-2 w-2">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                          </div>
-                          <div className="flex-1">
-                              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Network Status</p>
-                              <p className="text-[10px] font-bold text-slate-900 dark:text-slate-200 leading-none">All Systems Operational</p>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          )}
         </div>
       </aside>
     </>

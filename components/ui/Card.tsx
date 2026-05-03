@@ -8,15 +8,26 @@ interface CardProps {
   children: ReactNode
   onClick?: () => void
   hover?: boolean
+  /** 'glass' = white/5 backdrop-blur (default) | 'solid' = surface-card bg */
+  variant?: 'glass' | 'solid'
 }
 
-export default function Card({ className, children, onClick, hover = false }: CardProps) {
+export default function Card({
+  className,
+  children,
+  onClick,
+  hover = false,
+  variant = 'glass',
+}: CardProps) {
   return (
     <div
       onClick={onClick}
       className={cn(
-        'bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-4 transition-colors duration-300',
-        hover && 'cursor-pointer transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md hover:-translate-y-0.5',
+        'rounded-xl transition-all duration-200 border border-slate-700/50 shadow-sm',
+        variant === 'glass'
+          ? 'ds-card'     // bg-white/5 backdrop-blur border-white/10
+          : 'ds-card-solid', // bg-[#201f22] border-[#434656]
+        hover && 'cursor-pointer hover:bg-white/[0.07]',
         onClick && 'cursor-pointer',
         className
       )}

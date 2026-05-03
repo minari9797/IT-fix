@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { FileText, AlignLeft, AlertCircle, Image as ImageIcon, X, Upload, ChevronDown, PlusCircle, Wrench, CheckCircle, Search, UserCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -60,11 +60,13 @@ export default function CreateTicketPage() {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<{ title?: string; description?: string }>({})
   const fileRef = useRef<HTMLInputElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
 
   const [technicians, setTechnicians] = useState<Technician[]>([])
   const [selectedTechnicianId, setSelectedTechnicianId] = useState<string | null>(null)
   const [techSearch, setTechSearch] = useState('')
   const [techLoading, setTechLoading] = useState(true)
+  const [techDropdownOpen, setTechDropdownOpen] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -105,6 +107,42 @@ export default function CreateTicketPage() {
     setImagePreview(null)
     if (fileRef.current) fileRef.current.value = ''
   }
+
+  const handleDrop = useCallback((e: React.DragEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      toast.error('Only image files are supported')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB')
+      return
+    }
+    setImage(file)
+    setImagePreview(URL.createObjectURL(file))
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }, [])
+
+  const handleDragEnter = useCallback((e: React.DragEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }, [])
 
   const validate = () => {
     const e: typeof errors = {}
@@ -176,8 +214,9 @@ export default function CreateTicketPage() {
 
           {/* Page Heading */}
           <div className="mb-8 hidden md:block">
-            <h1 className="text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Create Ticket</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Describe your IT issue and we'll get it sorted</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-600 mb-1">User Portal / Support</p>
+            <h1 className="text-3xl font-black text-white tracking-tight">Initialize New Ticket</h1>
+            <p className="text-sm text-slate-500 mt-1">Provide technical details to expedite the resolution process.</p>
           </div>
 
           <div className="flex flex-col lg:flex-row lg:items-start gap-10">
@@ -188,202 +227,144 @@ export default function CreateTicketPage() {
                 {/* Title */}
                 <Input
                   id="title"
-                  label="Issue Title"
-                  placeholder="e.g. Laptop won't connect to Wi-Fi"
+                  label="Subject Summary"
+                  placeholder="Brief description of the issue"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   error={errors.title}
-                  icon={<FileText className="w-4 h-4" />}
                 />
 
                 {/* Description */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Description</label>
-                  <div className="relative">
-                    <AlignLeft className="absolute left-3.5 top-4 w-4 h-4 text-slate-500" />
-                    <textarea
-                      placeholder="Describe the issue in detail — what happened, when it started, what you've tried..."
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      rows={5}
-                      className={cn(
-                        "w-full rounded-lg border bg-white dark:bg-slate-800 pl-11 pr-4 py-3.5 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500",
-                        "transition-all duration-200 outline-none resize-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
-                        errors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-300 dark:border-slate-700'
-                      )}
-                    />
-                  </div>
-                  {errors.description && <p className="text-xs font-medium text-red-400 mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> {errors.description}
-                  </p>}
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Diagnostic Details</label>
+                  <textarea
+                    placeholder="Include error codes, steps to reproduce, and any recent system changes..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={5}
+                    className={cn(
+                      'w-full rounded-lg px-4 py-3 text-slate-100 text-sm placeholder:text-slate-600',
+                      'transition-all duration-200 outline-none resize-none',
+                      '[background-color:#111118] [border:1px_solid_#2a2a38] focus:[border-color:#3b82f6]',
+                      errors.description ? '[border-color:#7f1d1d]' : ''
+                    )}
+                  />
+                  {errors.description && <p className="text-xs text-red-400 mt-1">{errors.description}</p>}
                 </div>
 
                 {/* Priority Selection */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Priority Level</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Priority Level</label>
                   <div className="grid grid-cols-3 gap-3">
-                    {PRIORITIES.map((p) => (
+                    {[{value:'low',label:'Low'},{value:'medium',label:'Medium'},{value:'high',label:'Critical'}].map((p) => (
                       <button
                         key={p.value}
                         type="button"
                         onClick={() => setPriority(p.value as typeof priority)}
                         className={cn(
-                          "py-3 rounded-lg border text-xs font-bold uppercase tracking-widest transition-all duration-200",
+                          'py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200',
+                          '[border:1px_solid_#2a2a38]',
                           priority === p.value
-                            ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-sm"
-                            : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:border-blue-400 dark:hover:border-slate-600"
+                            ? '[background-color:#1d2d4a] [border-color:#3b82f6] text-blue-400'
+                            : '[background-color:#111118] text-slate-600 hover:text-slate-300'
                         )}
                       >
-                        <span className={priority === p.value ? 'text-blue-400' : p.color}>{p.label}</span>
+                        {p.label}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Technician Selection */}
+                {/* Technician Selection — collapsible dropdown */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                    <UserCheck className="w-4 h-4 text-blue-500" />
-                    Assign Technician
-                    <span className="text-slate-500 font-normal ml-1">(Optional)</span>
-                  </label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Assign Technician <span className="text-slate-600 normal-case tracking-normal font-normal">(Optional)</span></label>
 
-                  {/* Search */}
-                  <div className="relative">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Search by name or specialty..."
-                      value={techSearch}
-                      onChange={(e) => setTechSearch(e.target.value)}
-                      className={cn(
-                        "w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-11 pr-4 py-3 text-sm text-slate-900 dark:text-slate-100",
-                        "placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all duration-200",
-                        "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                      )}
-                    />
-                  </div>
-
-                  {/* Technician List */}
-                  <div className="max-h-[280px] overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 divide-y divide-slate-200 dark:divide-slate-700/50 scrollbar-none">
-                    {techLoading ? (
-                      <div className="flex flex-col gap-3 p-4">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className="flex items-center gap-3 animate-pulse">
-                            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700" />
-                            <div className="flex-1 space-y-2">
-                              <div className="h-3 w-24 bg-slate-200 dark:bg-slate-700 rounded" />
-                              <div className="h-2.5 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : filteredTechnicians.length === 0 ? (
-                      <div className="py-8 text-center">
-                        <Wrench className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">No technicians found</p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Try adjusting your search</p>
-                      </div>
-                    ) : (
-                      filteredTechnicians.map((tech) => {
-                        const isSelected = selectedTechnicianId === tech.id
-                        const colorIdx = tech.name.charCodeAt(0) % AVATAR_COLORS.length
-                        const gradient = AVATAR_COLORS[colorIdx]
-
-                        return (
-                          <button
-                            key={tech.id}
-                            type="button"
-                            onClick={() => setSelectedTechnicianId(isSelected ? null : tech.id)}
-                            className={cn(
-                              "w-full flex items-center gap-3 px-4 py-3.5 text-left transition-all duration-200 group",
-                              isSelected
-                                ? "bg-blue-50 dark:bg-blue-500/10"
-                                : "hover:bg-white dark:hover:bg-slate-800"
-                            )}
-                          >
-                            {/* Avatar */}
-                            <div className="relative flex-shrink-0">
-                              {tech.avatar_url ? (
-                                <img
-                                  src={tech.avatar_url}
-                                  alt={tech.name}
-                                  className={cn(
-                                    "w-10 h-10 rounded-full object-cover",
-                                    isSelected && "ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-800"
-                                  )}
-                                />
-                              ) : (
-                                <div
-                                  className={cn(
-                                    'w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br text-white text-xs font-bold',
-                                    gradient,
-                                    isSelected && 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-800'
-                                  )}
-                                >
-                                  {getInitials(tech.name)}
-                                </div>
-                              )}
-                              {isSelected && (
-                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm">
-                                  <CheckCircle className="w-3 h-3" />
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Info */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className={cn(
-                                  "text-sm font-semibold truncate",
-                                  isSelected
-                                    ? "text-blue-700 dark:text-blue-300"
-                                    : "text-slate-800 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-slate-100"
-                                )}>
-                                  {tech.name}
-                                </p>
-                                <span className={cn(
-                                  "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0",
-                                  tech.available
-                                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                    : "bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400"
-                                )}>
-                                  <span className={cn(
-                                    "w-1.5 h-1.5 rounded-full",
-                                    tech.available ? "bg-emerald-500" : "bg-slate-400"
-                                  )} />
-                                  {tech.available ? "Available" : "Busy"}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1 mt-0.5">
-                                <Wrench className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-                                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{tech.specialty}</span>
-                              </div>
-                            </div>
-
-                            {/* Selection indicator */}
-                            <div className={cn(
-                              "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200",
-                              isSelected
-                                ? "border-blue-600 bg-blue-600"
-                                : "border-slate-300 dark:border-slate-600 group-hover:border-blue-400 dark:group-hover:border-blue-500"
-                            )}>
-                              {isSelected && (
-                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                              )}
-                            </div>
-                          </button>
-                        )
-                      })
+                  {/* Dropdown trigger */}
+                  <button
+                    type="button"
+                    onClick={() => setTechDropdownOpen(prev => !prev)}
+                    className={cn(
+                      'w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm transition-all duration-200',
+                      '[background-color:#111118] [border:1px_solid_#2a2a38] hover:[border-color:#3a3a4e]',
+                      techDropdownOpen ? '[border-color:#3b82f6]' : ''
                     )}
-                  </div>
+                  >
+                    <span className={selectedTechnicianId
+                      ? 'text-slate-100 font-semibold'
+                      : 'text-slate-600'
+                    }>
+                      {selectedTechnicianId
+                        ? technicians.find(t => t.id === selectedTechnicianId)?.name || 'Selected'
+                        : 'Select an infrastructure area'}
+                    </span>
+                    <ChevronDown className={cn('w-4 h-4 text-slate-600 transition-transform', techDropdownOpen && 'rotate-180')} />
+                  </button>
+
+                  {/* Dropdown panel */}
+                  {techDropdownOpen && (
+                    <div className="rounded-lg overflow-hidden [background-color:#111118] [border:1px_solid_#2a2a38]">
+                      {/* Search inside dropdown */}
+                      <div className="p-2 [border-bottom:1px_solid_#2a2a38]">
+                        <input
+                          type="text"
+                          placeholder="Search by name or specialty..."
+                          value={techSearch}
+                          onChange={(e) => setTechSearch(e.target.value)}
+                          className="w-full px-3 py-2 rounded text-sm text-slate-100 placeholder:text-slate-600 outline-none [background-color:#16161e] [border:1px_solid_#2a2a38] focus:[border-color:#3b82f6]"
+                        />
+                      </div>
+
+                      {/* List */}
+                      <div className="max-h-52 overflow-y-auto scrollbar-none">
+                        {/* None option */}
+                        <button
+                          type="button"
+                          onClick={() => { setSelectedTechnicianId(null); setTechDropdownOpen(false) }}
+                          className={cn(
+                            'w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors',
+                            !selectedTechnicianId ? 'text-blue-400' : 'text-slate-500 hover:text-slate-200 hover:[background-color:#16161e]'
+                          )}
+                        >
+                          <span className="w-2 h-2 rounded-full border border-slate-700 flex-shrink-0" />
+                          Unassigned (Auto-route)
+                        </button>
+
+                        {techLoading ? (
+                          <div className="px-4 py-3 text-xs text-slate-600">Loading...</div>
+                        ) : filteredTechnicians.length === 0 ? (
+                          <div className="px-4 py-3 text-xs text-slate-600">No technicians found</div>
+                        ) : (
+                          filteredTechnicians.map((tech) => {
+                            const isSelected = selectedTechnicianId === tech.id
+                            return (
+                              <button
+                                key={tech.id}
+                                type="button"
+                                onClick={() => { setSelectedTechnicianId(isSelected ? null : tech.id); setTechDropdownOpen(false) }}
+                                className={cn(
+                                  'w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors',
+                                  isSelected
+                                    ? '[background-color:#1d2d4a] text-blue-400'
+                                    : 'text-slate-300 hover:[background-color:#16161e]'
+                                )}
+                              >
+                                <span className={cn(
+                                  'w-2 h-2 rounded-full flex-shrink-0',
+                                  tech.available ? 'bg-emerald-500' : 'bg-red-500'
+                                )} />
+                                <span className="flex-1 font-medium">{tech.name}</span>
+                                <span className="text-xs text-slate-600">{tech.specialty}</span>
+                              </button>
+                            )
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {selectedTechnicianId && (
-                    <p className="text-xs font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1 mt-1">
-                      <CheckCircle className="w-3 h-3" />
-                      Technician selected — they'll be notified when you submit
+                    <p className="text-[10px] text-blue-400 uppercase tracking-widest">
+                      Technician assigned — will be notified on submit
                     </p>
                   )}
                 </div>
@@ -395,15 +376,15 @@ export default function CreateTicketPage() {
                   </label>
 
                   {imagePreview ? (
-                    <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 group">
-                      <img src={imagePreview} alt="preview" className="w-full h-56 object-contain p-2" />
-                      <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="relative rounded-lg overflow-hidden [border:1px_solid_#2a2a38] [background-color:#111118] group">
+                      <img src={imagePreview} alt="preview" className="w-full h-48 object-contain p-2" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <button
                           type="button"
                           onClick={removeImage}
-                          className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-500 shadow-xl transition-all scale-90 group-hover:scale-100"
+                          className="w-9 h-9 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-500 transition-all"
                         >
-                          <X className="w-5 h-5" />
+                          <X className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -411,17 +392,25 @@ export default function CreateTicketPage() {
                     <button
                       type="button"
                       onClick={() => fileRef.current?.click()}
+                      onDrop={handleDrop}
+                      onDragOver={handleDragOver}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-3 py-10 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700",
-                        "bg-slate-50 dark:bg-slate-800/50 hover:border-blue-500/50 hover:bg-blue-50 dark:hover:bg-blue-500/5 transition-all duration-200 cursor-pointer"
+                        'flex flex-col items-center justify-center gap-3 py-10 rounded-lg cursor-pointer transition-all duration-200',
+                        '[background-color:#111118]',
+                        isDragging
+                          ? '[border:2px_dashed_#3b82f6] [background-color:#111827]'
+                          : '[border:2px_dashed_#2a2a38] hover:[border-color:#3b82f6] hover:[background-color:#111827]'
                       )}
                     >
-                      <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-md">
-                        <Upload className="w-6 h-6 text-slate-400" />
-                      </div>
-                      <div className="text-center px-4">
-                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Upload Ticket Attachment</p>
-                        <p className="text-xs text-slate-500 mt-1 font-medium">Click to select PNG, JPG or GIF (max 5MB)</p>
+                      <Upload className={cn('w-7 h-7 transition-colors', isDragging ? 'text-blue-400' : 'text-slate-600')} />
+                      <div className="text-center">
+                        <p className={cn('text-sm font-semibold transition-colors', isDragging ? 'text-blue-400' : 'text-slate-300')}>
+                          {isDragging ? 'Drop to attach' : 'Drag & drop your files here'}
+                        </p>
+                        <p className="text-xs text-slate-600 mt-0.5">or click to browse for a Capture d'écran</p>
+                        <p className="text-[10px] text-slate-700 mt-1 uppercase tracking-widest">JPG, PNG, PDF up to 10MB</p>
                       </div>
                     </button>
                   )}
@@ -434,8 +423,8 @@ export default function CreateTicketPage() {
                   />
                 </div>
 
-                <Button type="submit" fullWidth loading={loading} size="lg" className="mt-4 shadow-xl shadow-blue-900/40">
-                  <PlusCircle className="w-4 h-4 mr-1" /> Create Support Ticket
+                <Button type="submit" fullWidth loading={loading} size="lg" className="mt-4">
+                  Submit Ticket
                 </Button>
               </form>
             </div>

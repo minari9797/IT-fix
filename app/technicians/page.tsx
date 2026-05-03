@@ -50,7 +50,7 @@ export default function TechniciansPage() {
   )
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: '#131315' }}>
       <Sidebar />
       <Topbar title="Technicians" />
 
@@ -61,29 +61,33 @@ export default function TechniciansPage() {
         <div className="px-4 pt-4 md:px-10 md:pt-8 max-w-7xl">
           {/* Header */}
           <div className="mb-8 hidden md:block">
-            <h1 className="text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Technicians</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Meet the team handling your tickets</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#8e90a2' }}>User Portal / Team</p>
+            <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: '#e5e1e4' }}>Technicians</h1>
+            <p className="text-sm mt-1" style={{ color: '#c4c5d9' }}>Access complete profiles, current assignments, and specialized expertise.</p>
           </div>
 
           {/* Search */}
           <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#8e90a2' }} />
             <input
               type="text"
-              placeholder="Search by name or specialty..."
+              placeholder="Search technicians..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 shadow-sm"
+              className="w-full pl-11 pr-4 py-3 rounded-xl text-sm outline-none transition-all duration-200 shadow-inner"
+              style={{ backgroundColor: '#1c1b1d', border: '1px solid rgba(255,255,255,0.06)', color: '#e5e1e4' }}
+              onFocus={(e) => { e.target.style.borderColor = '#b8c3ff'; e.target.style.boxShadow = '0 0 0 1px rgba(184,195,255,0.3)' }}
+              onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.06)'; e.target.style.boxShadow = '' }}
             />
           </div>
 
           {/* Stats counts */}
           {!loading && (
             <div className="flex flex-wrap gap-2.5 mb-6">
-              <span className="text-xs font-bold px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 dark:text-slate-400 uppercase tracking-widest shadow-sm">
+              <span className="text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#8e90a2' }}>
                 {technicians.length} Team Members
               </span>
-              <span className="text-xs font-bold px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-lg text-emerald-600 dark:text-emerald-400 uppercase tracking-widest shadow-sm">
+              <span className="text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest" style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.15)', color: '#4ade80' }}>
                 {technicians.filter((t) => t.available).length} Available Now
               </span>
             </div>
