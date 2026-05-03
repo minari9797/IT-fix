@@ -8,20 +8,26 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string
   icon?: ReactNode
   helperText?: string
+  /** 'user' = blue focus ring (default) | 'tech' = purple focus ring */
+  portal?: 'user' | 'tech'
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, icon, helperText, id, ...props }, ref) => {
+  ({ className, label, error, icon, helperText, id, portal = 'user', ...props }, ref) => {
+    const focusColor = portal === 'tech'
+      ? 'focus:border-[var(--secondary)] focus:ring-1 focus:ring-[var(--secondary)]/30'
+      : 'focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/30'
+
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={id} className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label htmlFor={id} className="ds-label">
             {label}
           </label>
         )}
         <div className="relative">
           {icon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--outline)] pointer-events-none">
               {icon}
             </div>
           )}
@@ -29,19 +35,20 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={id}
             className={cn(
-              'w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500',
-              'transition-all duration-200 outline-none',
-              'focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20',
-              'disabled:bg-slate-100 dark:disabled:bg-slate-900 disabled:cursor-not-allowed disabled:text-slate-400 dark:disabled:text-slate-500',
-              icon ? 'pl-10' : undefined,
-              error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : undefined,
+              'w-full bg-[#1c1b1d] border border-white/[0.06] rounded-xl px-4 py-3',
+              'text-[var(--on-bg)] text-sm placeholder:text-[var(--outline-var)]',
+              'transition-all duration-200 outline-none shadow-inner',
+              focusColor,
+              'disabled:opacity-40 disabled:cursor-not-allowed',
+              icon ? 'pl-12' : undefined,
+              error ? 'border-[var(--error)]/50 focus:border-[var(--error)]' : undefined,
               className
             )}
             {...props}
           />
         </div>
-        {error && <p className="text-xs text-red-500 dark:text-red-400">{error}</p>}
-        {helperText && !error && <p className="text-xs text-slate-500">{helperText}</p>}
+        {error && <p className="text-xs text-[var(--error)] mt-0.5">{error}</p>}
+        {helperText && !error && <p className="text-xs text-[var(--outline)] mt-0.5">{helperText}</p>}
       </div>
     )
   }

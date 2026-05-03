@@ -1,9 +1,7 @@
 'use client'
 
-import Card from '@/components/ui/Card'
 import StatusBadge from '@/components/ui/StatusBadge'
-import { PRIORITY_CONFIG, timeAgo, cn } from '@/lib/utils'
-import { User, Image as ImageIcon, ChevronRight } from 'lucide-react'
+import { timeAgo, cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 
 interface Ticket {
@@ -18,63 +16,64 @@ interface Ticket {
   technicians?: { name: string } | null
 }
 
-interface TicketCardProps {
-  ticket: Ticket
+const PRIORITY_DOT: Record<string, string> = {
+  low:    '#8e90a2',
+  medium: '#f59e0b',
+  high:   '#ffb4ab',
+}
+const PRIORITY_LABEL: Record<string, { color: string; label: string }> = {
+  low:    { color: '#8e90a2', label: 'Low' },
+  medium: { color: '#f59e0b', label: 'Medium' },
+  high:   { color: '#ffb4ab', label: 'Critical' },
 }
 
-export default function TicketCard({ ticket }: TicketCardProps) {
+export default function TicketCard({ ticket }: { ticket: Ticket }) {
   const router = useRouter()
-  const priorityCfg = PRIORITY_CONFIG[ticket.priority]
+  const p = PRIORITY_LABEL[ticket.priority] ?? PRIORITY_LABEL.low
 
   return (
-    <Card hover onClick={() => router.push(`/tickets/${ticket.id}`)}>
-      <div className="flex gap-3">
-        {/* Image preview */}
-        {ticket.image_url ? (
-          <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-900/50">
-            <img
-              src={ticket.image_url}
-              alt="ticket screenshot"
-              className="w-full h-full object-cover grayscale-[0.2]"
-            />
-          </div>
-        ) : (
-          <div className="w-16 h-16 rounded-xl flex-shrink-0 bg-slate-100 dark:bg-slate-700/30 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
-            <ImageIcon className="w-6 h-6 text-slate-400 dark:text-slate-500" />
-          </div>
-        )}
-
-        {/* Content */}
+    <div
+      onClick={() => router.push(`/tickets/${ticket.id}`)}
+      className="rounded-xl p-4 transition-all duration-200 cursor-pointer group border border-slate-700/50 shadow-sm"
+      style={{
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(8px)',
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)' }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        {/* Left */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight line-clamp-1">
-              {ticket.title}
-            </h3>
-            <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0 mt-0.5" />
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: PRIORITY_DOT[ticket.priority] }} />
+            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: p.color }}>{p.label}</span>
+            <span className="text-[10px] uppercase tracking-widest" style={{ color: '#434656' }}>{timeAgo(ticket.created_at)}</span>
           </div>
-
-          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-3 leading-relaxed">
+          <h3 className="text-sm font-bold leading-snug line-clamp-1 transition-colors" style={{ color: '#e5e1e4' }}>
+            {ticket.title}
+          </h3>
+          <p className="text-xs line-clamp-1 mt-0.5 uppercase tracking-wide" style={{ color: '#434656' }}>
             {ticket.description}
           </p>
-
-          <div className="flex items-center justify-between gap-2">
-            <StatusBadge status={ticket.status} size="sm" />
-            <span className={cn('text-xs px-2 py-0.5 rounded-full font-medium', priorityCfg.color)}>
-              {priorityCfg.label}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/50">
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-              <User className="w-3 h-3" />
-              <span className="truncate max-w-[100px] font-medium">
-                {ticket.technicians?.name || 'Unassigned'}
-              </span>
-            </div>
-            <span className="text-xs text-slate-500">{timeAgo(ticket.created_at)}</span>
-          </div>
+        </div>
+        {/* Right */}
+        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+          <StatusBadge status={ticket.status} size="sm" />
+          <span className="text-sm transition-colors" style={{ color: '#434656' }}>›</span>
         </div>
       </div>
-    </Card>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: '#8e90a2' }}>
+          {ticket.technicians?.name || 'Unassigned'}
+        </span>
+        <span className="text-[10px] font-mono" style={{ color: '#434656' }}>
+          #{ticket.id.substring(0, 8).toUpperCase()}
+        </span>
+      </div>
+    </div>
   )
 }

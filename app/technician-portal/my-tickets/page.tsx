@@ -2,14 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-  ClipboardList, 
-  Search, 
-  CheckCircle2, 
-  Clock, 
-  Filter,
-  Coffee
-} from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useTechnician } from '@/lib/hooks'
@@ -125,7 +117,7 @@ export default function MyTicketsPage() {
   if (authLoading || !technician) return null
 
   return (
-    <div className="min-h-screen uppercase-first">
+    <div className="min-h-screen uppercase-first" style={{ backgroundColor: '#131315' }}>
       <TechnicianTopbar title="My Tickets" />
 
       <main className={cn(
@@ -136,42 +128,38 @@ export default function MyTicketsPage() {
           
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-              My Assigned Workload
-            </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium italic">
-              Management of your active and historical support assignments
-            </p>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#8e90a2' }}>System / Operational / Queue</p>
+            <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: '#e5e1e4' }}>My Tickets</h1>
           </div>
 
           {/* Search & Tabs */}
           <div className="flex flex-col md:flex-row gap-4 mb-8">
              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <input
                     type="text"
                     placeholder="Search assigned tickets..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 shadow-sm"
+                    className="w-full px-4 py-3 text-sm outline-none transition-all duration-200 rounded-xl shadow-inner"
+                    style={{ backgroundColor: '#1c1b1d', border: '1px solid rgba(255,255,255,0.06)', color: '#e5e1e4' }}
+                    onFocus={(e) => { e.target.style.borderColor = '#d0bcff'; e.target.style.boxShadow = '0 0 0 1px rgba(208,188,255,0.3)' }}
+                    onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.06)'; e.target.style.boxShadow = '' }}
                 />
              </div>
-             <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm self-start">
+             <div className="flex rounded-xl p-1 self-start" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 {[
-                    { id: 'active', label: 'In Progress', icon: Clock },
-                    { id: 'resolved', label: 'Post-Mortem', icon: CheckCircle2 }
+                    { id: 'active', label: 'Active' },
+                    { id: 'resolved', label: 'Resolved' }
                 ].map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as Tab)}
-                        className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all",
-                            activeTab === tab.id 
-                                ? "bg-amber-500 text-white shadow-lg shadow-amber-900/20" 
-                                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
-                        )}
+                        className="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+                        style={activeTab === tab.id
+                          ? { backgroundColor: '#571bc1', color: '#c4abff', boxShadow: '0 0 12px rgba(87,27,193,0.3)' }
+                          : { color: '#8e90a2' }
+                        }
                     >
-                        <tab.icon className="w-3.5 h-3.5" />
                         {tab.label}
                     </button>
                 ))}
@@ -180,12 +168,9 @@ export default function MyTicketsPage() {
 
           {/* Ticket Stats Strip */}
           <div className="flex gap-4 mb-6">
-             <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-inner">
-                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">
-                    {tickets.length} {activeTab === 'active' ? 'Active Tasks' : 'Resolved Records'}
-                </span>
-             </div>
+             <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#8e90a2' }}>
+                 {tickets.length} {activeTab === 'active' ? 'Active Tasks' : 'Resolved Records'}
+             </span>
           </div>
 
           {/* Ticket List */}
@@ -218,7 +203,6 @@ export default function MyTicketsPage() {
                     ticket={ticket} 
                     onAction={activeTab === 'active' ? resolveTicket : undefined}
                     actionLabel="Resolve"
-                    actionIcon={<CheckCircle2 className="w-3 h-3" />}
                     variant="amber"
                   />
                 </div>
