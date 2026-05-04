@@ -193,6 +193,25 @@ export default function CreateTicketPage() {
     setLoading(false)
 
     if (error) {
+      // FK violation = stale technician UUID (table was recreated) → retry unassigned
+      if (error.code === '23503' || error.message.includes('foreign key')) {
+        toast.error('Technician data changed — retrying without assignment...')
+        setSelectedTechnicianId(null)
+        const { error: retryError } = await supabase.from('tickets').insert({
+          title: title.trim(),
+          description: description.trim(),
+          priority,
+          status: 'pending',
+          user_id: user.id,
+          image_url: imageUrl,
+          technician_id: null,
+        })
+        if (!retryError) {
+          toast.success('Ticket submitted (unassigned — please reload page to re-select technician)')
+          router.push('/dashboard')
+          return
+        }
+      }
       console.error('Ticket insert error:', error)
       toast.error(`Failed to create ticket: ${error.message}`)
     } else {
