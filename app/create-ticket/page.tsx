@@ -155,7 +155,7 @@ export default function CreateTicketPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) { router.push('/login'); return }
+    // Auth check removed — open access
     if (!validate()) return
 
     setLoading(true)

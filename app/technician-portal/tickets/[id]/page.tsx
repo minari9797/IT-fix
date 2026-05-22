@@ -43,7 +43,7 @@ export default function TechnicianTicketDetail() {
   const [status, setStatus] = useState<Ticket['status']>('pending')
 
   useEffect(() => {
-    if (!authLoading && !technician) router.push('/technician-portal/login')
+    // Auth redirect removed — open access
   }, [technician, authLoading, router])
 
   useEffect(() => {
@@ -148,7 +148,7 @@ export default function TechnicianTicketDetail() {
     setSaving(false)
   }
 
-  if (authLoading || !technician) return null
+  // Auth loading gate removed — open access
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#131315' }}>

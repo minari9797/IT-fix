@@ -54,10 +54,7 @@ export default function AdminPage() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login')
-      return
-    }
+    // Auth redirect removed — open access
     if (!authLoading && user && !isAdmin) {
       toast.error('Unauthorized access')
       router.push('/dashboard')

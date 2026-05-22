@@ -35,7 +35,7 @@ export default function OpenPoolPage() {
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all')
 
   useEffect(() => {
-    if (!authLoading && !technician) router.push('/technician-portal/login')
+    // Auth redirect removed — open access
   }, [technician, authLoading, router])
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function OpenPoolPage() {
     return matchesSearch && matchesPriority
   })
 
-  if (authLoading || !technician) return null
+  // Auth loading gate removed — open access
 
   return (
     <div className="min-h-screen uppercase-first" style={{ backgroundColor: '#131315' }}>

@@ -48,7 +48,7 @@ export default function DashboardPage() {
   const [filter, setFilter] = useState<FilterStatus>('all')
 
   useEffect(() => {
-    if (!authLoading && !user) router.push('/login')
+    // Auth redirect removed — open access
   }, [user, authLoading, router])
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function DashboardPage() {
 
   const { isOpen } = useSidebar()
 
-  if (authLoading) return null
+  // Auth loading gate removed — open access
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#131315' }}>

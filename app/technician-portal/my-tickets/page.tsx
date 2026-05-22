@@ -38,11 +38,11 @@ export default function MyTicketsPage() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    if (!authLoading && !technician) router.push('/technician-portal/login')
+    // Auth redirect removed — open access
   }, [technician, authLoading, router])
 
   useEffect(() => {
-    if (!technician) return
+    // Fetch tickets even if not authenticated
     fetchTickets()
   }, [technician, activeTab])
 
@@ -52,7 +52,7 @@ export default function MyTicketsPage() {
       const query = supabase
         .from('tickets')
         .select('*')
-        .eq('technician_id', technician.id)
+        .eq('technician_id', technician?.id || 'dummy')
 
       if (activeTab === 'active') {
         query.neq('status', 'resolved')
@@ -115,7 +115,7 @@ export default function MyTicketsPage() {
     t.description.toLowerCase().includes(search.toLowerCase())
   )
 
-  if (authLoading || !technician) return null
+  // Auth loading gate removed — open access
 
   return (
     <div className="min-h-screen uppercase-first" style={{ backgroundColor: '#131315' }}>

@@ -37,14 +37,15 @@ export default function TechnicianDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!authLoading && !technician) {
-      toast.error('Unauthorized access')
-      router.push('/technician-portal/login')
-    }
+    // Auth redirect removed — open access
   }, [technician, authLoading, router])
 
   useEffect(() => {
-    if (!technician) return
+    // Auth redirect removed — open access
+  }, [technician, authLoading, router])
+
+  useEffect(() => {
+    // Fetch even if technician is null (to see pool tickets)
     fetchDashboardData()
   }, [technician])
 
@@ -64,7 +65,7 @@ export default function TechnicianDashboard() {
       const { count: totalResolved } = await supabase
         .from('tickets')
         .select('*', { count: 'exact', head: true })
-        .eq('technician_id', technician.id)
+        .eq('technician_id', technician?.id || 'dummy')
         .eq('status', 'resolved')
 
       setResolvedCount(totalResolved ?? 0)
@@ -82,7 +83,7 @@ export default function TechnicianDashboard() {
       const { data: myData, error: myError } = await supabase
         .from('tickets')
         .select('*')
-        .eq('technician_id', technician.id)
+        .eq('technician_id', technician?.id || 'dummy')
         .neq('status', 'resolved')
         .order('created_at', { ascending: false })
 
@@ -120,7 +121,10 @@ export default function TechnicianDashboard() {
   }
 
   const takeTicket = async (ticketId: string) => {
-    if (!technician) return
+    if (!technician) {
+      toast.error('You must be a registered technician to take tickets');
+      return;
+    }
     const { error } = await supabase
       .from('tickets')
       .update({ 
@@ -137,7 +141,7 @@ export default function TechnicianDashboard() {
     }
   }
 
-  if (authLoading || !technician) return null
+  // Auth loading gate removed — open access
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#131315' }}>
@@ -153,9 +157,9 @@ export default function TechnicianDashboard() {
           <div className="mb-8">
             <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#8e90a2' }}>System / Operational / Overview</p>
             <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: '#e5e1e4' }}>
-              Welcome back, {technician.name.split(' ')[0]}
+              Welcome back, {technician?.name?.split(' ')[0] || 'Technician'}
             </h1>
-            <p className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: '#d0bcff' }}>{technician.specialty}</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: '#d0bcff' }}>{technician?.specialty || 'IT Support'}</p>
           </div>
 
           {/* Stats */}
